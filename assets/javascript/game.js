@@ -137,10 +137,12 @@ var game = {
 	],
 	// This will be a single object, representing the character you chose
 	yourCharacterArray: [],
-	// This will be a single object, representing the enemy you chose, displayed in the Defender section
-	yourEnemyArray: [],
 	// Array of enemy character objects, displayed in the Enemies Available To Attach section
 	enemiesAvailableArray: [],
+	// This will be a single object, representing the enemy you chose, displayed in the Defender section
+	yourEnemyArray: [],
+	// Store two currently battling characters as an array. May want to change the display later
+	currentBattleArray: [],
 	// Store current value of protagonist's attackPower for use during gameplay. Note: attackPower will stay fixed
 	currentAttackPower: 0,
 
@@ -159,8 +161,8 @@ var game = {
 		h4.appendChild(text);
 	},
 
-	// Function to create character list for each section
-	// Note: dataObj contains: array, parent_id, ul_id, li_class, li_id, img_class, p1_class, p2_class
+	// Function to dynamically create character list for each section
+	// Note: dataObj contains: array, parent_id, ul_id, li_class, img_class, p1_class, p2_class
 	createCharacterList: function(dataObj) {
 		this.log('dataObj: ' + dataObj);
 		//var parent_id = dataObj.parent_id;
@@ -178,8 +180,8 @@ var game = {
 			var li = document.createElement("li");
 			// Add class li-character to each <li>
 			li.setAttribute("class", dataObj.li_class);
-			// Add dynamic id to each <li> for later click handling
-			li.setAttribute("id", dataObj.li_id + i);
+			// Add dynamic id to each <li> for later click handling. Use class + number i to target items
+			li.setAttribute("id", i);
 			// Append the <li> to the <ul>
 			ul.appendChild(li);
 			// Create an img tag
@@ -237,7 +239,6 @@ $(document).ready(function() {
 		parent_id: "display-characters" ,
 		ul_id: 	   "master-char-list"	,
 		li_class:  "li-character"		,
-		li_id: 	   "character"			,
 		img_class: "bg-blue"			,
 		p1_class:  "character-label"	,
 		p2_class:  "character-health"
@@ -246,23 +247,24 @@ $(document).ready(function() {
 
 	// When the user clicks a character, assign that character to them, and assign everyone else as enemies
 	$('div#display-characters li').on('click', function(event) {
+	//$(document.body).on('click', 'div#display-characters li', function(event) {
 		// Set the character number based on the <li> id
-		// Take substring, and record last item in string, as id #'s are proceeded by "character" for visual purposes
-		var yourCharacterIndex = $(this).attr('id').substring(9);
+		var characterIndex = $(this).attr('id');
 		// Cast to integer, so that .push works below
-		var index = parseInt(yourCharacterIndex);
+		var index = parseInt(characterIndex);
 		game.log('character index chosen: ' + index);
 		// Assign your character to your array by accessing the index in the master array
 		// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
 		game.log('game.masterCharacterArray[index]: ' + game.masterCharacterArray[index]);
 		var pushObj = game.masterCharacterArray[index];
 		game.log('typeof pushObj: ' + typeof pushObj);
-		// Push the character chosen onto your character array (will be object)
+		// Push the character chosen onto your character array, and onto the current battle array (will be object)
 		game.yourCharacterArray.push(pushObj);
 		game.log('yourCharacterArray : ' + game.yourCharacterArray);
+		game.currentBattleArray.push(pushObj);
 
 		// Remove the character selected from the master array, so that only the enemies remain
-		game.masterCharacterArray.splice(yourCharacterIndex, 1);
+		game.masterCharacterArray.splice(index, 1);
 		game.log('masterCharacterArray after splice: ' + game.masterCharacterArray);
 
 		// Rename the resulting array to enemiesAvailableArray for visual purposes
@@ -287,71 +289,11 @@ $(document).ready(function() {
 			parent_id: "display-protagonist",
 			ul_id: 	   "your-character"		,
 			li_class:  "li-your-character"	,
-			li_id: 	   "your-character"		,
 			img_class: "bg-blue"			,
 			p1_class:  "character-label"	,
 			p2_class:  "character-health"
 		}
 		game.createCharacterList(dataObj);
-		/*
-		// Add new content to the your-character div.  First, get the parent element.
-		var parent = document.getElementById("display-protagonist");
-		// First, add Your Character section
-		var h4 = document.createElement("h4");
-		// Create the text for the <h4>
-		var text = document.createTextNode("Your Character");
-		// Append the <h4> to the div
-		parent.appendChild(h4);
-		// Put the text into the <h4>
-		h4.appendChild(text);
-		// Now create the ul with class your-character
-		var ul = document.createElement("ul");
-		// Give the ul an id
-		ul.setAttribute("id", "your-character");
-		// Append the <ul> to the parent div
-		parent.appendChild(ul);
-		// Now create the <li> for your character, using the loop function.
-		// Note: Even though length == 1, do it for DRY purposes
-		game.yourCharacterArray.forEach(function(object, i, array) {
-			// Create an <li> tag for each object
-			var li = document.createElement("li");
-			// Add class li-character to each <li>
-			li.setAttribute("class", "li-your-character");
-			// Add dynamic id to each <li> for later click handling. NOTE: may not need any clicks on it
-			li.setAttribute("id", "your-character");
-			// Append the <li> to the <ul>
-			ul.appendChild(li);
-			// Create an img tag
-			var img = document.createElement("img");
-			// Add bg to image
-			img.setAttribute("class", "bg-blue");
-			// Create img src attribute
-			img.setAttribute("src", array[i].visual);
-			// Create img alt attribute
-			img.setAttribute("alt", array[i].name);
-			// Create a <p> element
-			var p = document.createElement('p');
-			// Add a class to the p element
-			p.setAttribute("class", "character-label");
-			// Create a text node for inserting text into the <li>
-			var text = document.createTextNode(array[i].name);
-			// Append the <p> to the <li>
-			li.appendChild(p);
-			// Insert the text node into the <li>
-			p.appendChild(text);
-			// Insert the img tag inside of the <li> tag
-			li.appendChild(img);
-			// Create another <p> element for display of character health
-			var p = document.createElement('p');
-			// Add a class to the p element
-			p.setAttribute("class", "your-character-health");
-			// Create a node for the health text
-			var text = document.createTextNode(array[i].healthPoints);
-			// Append the new p element to the <li>
-			li.appendChild(p);
-			// Append the health text to the <li> element
-			p.appendChild(text);
-		});*/
 
 		// Create section heading for enemy display
 		var dataObj = { 
@@ -366,99 +308,104 @@ $(document).ready(function() {
 			parent_id: "display-enemies"	 ,
 			ul_id: 	   "enemy-character"	 ,
 			li_class:  "li-enemy-character"	 ,
-			li_id: 	   "enemy-character"	 ,
 			img_class: "bg-red"				 ,
 			p1_class:  "character-label"	 ,
 			p2_class:  "character-health"
 		}
 		game.createCharacterList(dataObj);
+	});
+
+	// When the user chooses an enemy, assign it to the defender array
+	//$('div#display-enemies li').on('click', function(event) {
+	$(document.body).on('click', 'div#display-enemies li', function(event) {
+		game.log('enemy was just selected!');
+		// Set the character number based on the <li> id
+		var characterIndex = $(this).attr('id');
+		// Cast to integer, so that .push works below
+		var index = parseInt(characterIndex);
+		game.log('character index chosen: ' + index);
+		// Assign character to defender array by accessing the index in the enemy array
+		// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
+		game.log('game.enemiesAvailableArray[index]: ' + game.enemiesAvailableArray[index]);
+		var pushObj = game.enemiesAvailableArray[index];
+		game.log('typeof pushObj: ' + typeof pushObj);
+		// Push the character chosen onto defender character array, and current battle array (will be object)
+		game.yourEnemyArray.push(pushObj);
+		game.log('yourEnemyArray : ' + game.yourEnemyArray);
+		game.currentBattleArray.push(pushObj);
+		// Remove the character selected from the enemies available array, as they will now be the defender
+		game.enemiesAvailableArray.splice(index, 1);
+		game.log('masterCharacterArray after splice: ' + game.masterCharacterArray);
+		// Remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
+		li = document.getElementsByClassName("li-enemy-character")[index];
+		li.innerHTML = '';
+
+		// Insert content into the left-divide-section
+		var parent = document.getElementById("left-divide-section");
+		var p = document.createElement('p');
+		p.setAttribute("class", "divide-label");
+		var text = document.createTextNode("VS");
+		parent.appendChild(p);
+		p.appendChild(text);
+
+		// Insert content into the attack section (button etc)
+		var parent = document.getElementById("attack-section");
+		var button = document.createElement('button');
+		button.setAttribute("class", "btn btn-default");
+		button.setAttribute("type", "button");
+		var text = document.createTextNode("Attack Now!");
+		parent.appendChild(button);
+		button.appendChild(text);
+
+		// Now display the defender under your character display, on left of screen in the #display-defender <aside>
+		// Create section heading for enemy display
+		var dataObj = { 
+			parent_id: "display-defender", 
+			h4_text:   "Your Opponent Is:" 
+		};
+		game.createSectionHeading(dataObj);
+	
+		// Create select character list from enemies
+		var dataObj = {
+			array: game.yourEnemyArray,
+			parent_id: "display-defender"	  ,
+			ul_id: 	   "defender-character"	  ,
+			li_class:  "li-defender-character",
+			img_class: "bg-black"			  ,
+			p1_class:  "character-label"	  ,
+			p2_class:  "character-health"
+		}
+		game.createCharacterList(dataObj);
+
 		/*
-		// Now dynamically fill in the enemies to select section with remaining master array items
-		var parent = document.getElementById("display-enemies");
-		// Create and add the h4 heading
+		// Put something into #fight-results section
+		var parent = document.getElementById("fight-results");
 		var h4 = document.createElement('h4');
-		var text = document.createTextNode("Select An Opponent To Attack");
+		var text = document.createTextNode("Battle Results");
 		h4.appendChild(text);
-		parent.appendChild(h4);
-		// Create and append the ul element
-		var ul = document.createElement('ul');
-		ul.setAttribute("id", "enemy-list");
-		parent.appendChild(ul);
-		// Create and append the characters by going through loop
-			game.enemiesAvailableArray.forEach(function(object, i, array) {
-			// Create an <li> tag for each object
-			var li = document.createElement("li");
-			// Add class li-character to each <li>
-			li.setAttribute("class", "li-enemy-character");
-			// Add dynamic id to each <li> for later click handling. NOTE: may not need any clicks on it
-			li.setAttribute("id", "enemy-character");
-			// Append the <li> to the <ul>
-			ul.appendChild(li);
-			// Create an img tag
-			var img = document.createElement("img");
-			// Add bg to image
-			img.setAttribute("class", "bg-red");
-			// Create img src attribute
-			img.setAttribute("src", array[i].visual);
-			// Create img alt attribute
-			img.setAttribute("alt", array[i].name);
-			// Create a <p> element
-			var p = document.createElement('p');
-			// Add a class to the p element
-			p.setAttribute("class", "character-label");
-			// Create a text node for inserting text into the <li>
-			var text = document.createTextNode(array[i].name);
-			// Append the <p> to the <li>
-			li.appendChild(p);
-			// Insert the text node into the <li>
-			p.appendChild(text);
-			// Insert the img tag inside of the <li> tag
-			li.appendChild(img);
-			// Create another <p> element for display of character health
-			var p = document.createElement('p');
-			// Add a class to the p element
-			p.setAttribute("class", "enemy-character-health");
-			// Create a node for the health text
-			var text = document.createTextNode(array[i].healthPoints);
-			// Append the new p element to the <li>
-			li.appendChild(p);
-			// Append the health text to the <li> element
-			p.appendChild(text);
-		});*/
+		parent.appendChild(h4);*/
+		// Create section heading for enemy display
+		var dataObj = { 
+			parent_id: "battle-ground", 
+			h4_text:   "Battleground" 
+		};
+		game.createSectionHeading(dataObj);
+	
+		// Create select character list from enemies
+		var dataObj = {
+			array: game.currentBattleArray	  ,
+			parent_id: "battle-ground"	  	  ,
+			ul_id: 	   "battle-character"	  ,
+			li_class:  "li-battle-character"  ,
+			img_class: "bg-blue"			  ,
+			p1_class:  "character-label"	  ,
+			p2_class:  "character-health"
+		}
+		game.createCharacterList(dataObj);
+
+		// Now change the background color of the second li-battle-character to match enemy color. Will always be in 2nd position
+		var li = document.getElementsByClassName("li-battle-character")[1];
+		var img = li.children[1];
+		img.setAttribute("class", "bg-black");
 	});
 });
-
-/*
-enemies.push(javaTheHut);
-
-var c = characterObjects;
-
-enemies = [c.javaTheHut, c.yoda, c.bubaFet];
-
-yourCharacter = characterObject.yoda;
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

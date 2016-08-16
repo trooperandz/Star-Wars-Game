@@ -21,6 +21,11 @@
 	background-color: red;
 }
 
+/* Image background color class */
+.bg-black {
+	background-color: #333;
+}
+
 .master-char-list {
 	display: inline-block;
 }
@@ -38,10 +43,12 @@ li {
 	display: inline-block;
 	/* Do not show bullets */
 	list-style: none;
+	padding: 0 8px;
 }
 
-.li-character {
-	padding: 0 8px;
+/* Add extra padding between battling characters */
+.li-battle-character {
+	padding: 0 30px;
 }
 
 p.character-label {
