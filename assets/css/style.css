@@ -1,0 +1,72 @@
+.jumbotron {
+	margin-bottom: 5px;
+}
+
+.text-center {
+	text-align: center;
+}
+
+/* Image background color class */
+.bg-blue {
+	background-color: #008cba;
+}
+
+/* Image background color class */
+.bg-green {
+	background-color: green;
+}
+
+/* Image background color class */
+.bg-red {
+	background-color: red;
+}
+
+.master-char-list {
+	display: inline-block;
+}
+
+div #display-characters {
+	margin-top: 8%;
+}
+
+ul {
+	padding: 0;
+}
+
+li {
+	/* Show inline instead of top-bottom */
+	display: inline-block;
+	/* Do not show bullets */
+	list-style: none;
+}
+
+.li-character {
+	padding: 0 8px;
+}
+
+p.character-label {
+	margin: 0;
+}
+
+p.character-health {
+	margin: 0;
+}
+
+/* Note: when your characters become assigned, do this to the <li> to make it have a border etc, if you decide it looks good:
+   Or you may want to just change the blue to red, gray etc
+li {
+	padding: 0 10px;
+	border-radius: 15px;
+	background-color: #eee; /* or whatever *
+}
+*/
+
+img {
+	height: 125px;
+	width: auto;
+	padding: 8px 8px;
+	border-radius: 14px;
+	margin: 0 4px;
+	/*background-color: #008cba;*/
+	cursor: pointer;
+}
