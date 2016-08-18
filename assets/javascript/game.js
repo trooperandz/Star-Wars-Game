@@ -156,6 +156,13 @@ var game = {
 	//currentEnemyIndex: 0,  DONT NEED THIS, as aready removed from screen upon initial selection
 	// This will be used in conjunction with initialAttack to determine the append instructions when selecting another enemy after defeating initial
 	enemyAlreadyDefeated: false,
+	// Keep track of enemies defeatd, so that you know when the character has won if total == length of enemiesAvailableArray
+	// Value will be incremented in main program code, after an enemy has been defeated
+	// Note: originally removed enemies from array after defeat.  However, this scrambles up the array indexes and mismatches them with li id
+	enemiesDefeatedCount: 0,
+	// Set boolean value to determine action for Attack button click. If defeatActiveMode == true, then an enemy has just been defeated
+	// Disallow any click to affect health points.  Reset to false inside of div#enemy-character click when a new enemy has been selected
+	defeatActiveMode: false,
 
 	// Function to create section heading
 	// Note: dataObj contains: parent_id, h4_text
@@ -286,6 +293,10 @@ $(document).ready(function() {
 		// to the same location in memory.  Any alterations will affect the master array
 		game.enemiesAvailableArray = game.masterCharacterArray;
 
+		// Set defeated count to determine later on if protagonish has won the entire game. Initial value == 7
+		//game.enemiesDefeatedCount = game.enemiesAvailableArray.length;
+		//game.log("enemies defeated count: " + game.enemiesDefeatedCount);
+
 		// Remove the original character list from the DOM, before adding new content.
 		var el = document.getElementById("display-characters");
 		el.parentNode.removeChild(el);
@@ -337,20 +348,29 @@ $(document).ready(function() {
 	//$('div#display-enemies li').on('click', function(event) {
 	$(document.body).on('click', 'div#display-enemies li', function(event) {
 		game.log('enemy was just selected!');
+
+		// If user selected a new enemy, another battle has begun. Set defeat active mode to false so that attack button functionality works
+		game.defeatActiveMode = false;
+
 		// Set the character number based on the <li> id. Will always match position, as html is created dynamically from the array itself.
 		// Use slice to remove the words before the index number, for later use of index position
 		var index = $(this).attr('id').slice(-1);
+
 		// Save the enemy select index postion, for later removal from enemies available array
 		game.currentEnemyIndex = index;
+
 		// Assign character to defender array by accessing the index in the enemy array
 		var pushObj = game.enemiesAvailableArray[index];
+
 		// If haven't attacked anybody yet, and thus no enemy has been defeated, append new content etc
 		if(!game.attackActiveMode && !game.enemyAlreadyDefeated) {
 			// Push the character chosen onto defender character array, and current battle array (will be objects)
 			game.yourEnemyArray.push(pushObj);
 			game.currentBattleArray.push(pushObj);
 			// Remove the character selected from the enemies available array, as they will now be the defender
-			game.enemiesAvailableArray.splice(index, 1);
+			// IS THIS SCREWING IT UP?
+			//game.enemiesAvailableArray.splice(index, 1);
+			//game.log('enemiesAvailableArray after splice: ' + JSON.stringify(game.enemiesAvailableArray));
 			// Remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
 			//li = document.getElementsByClassName("li-enemy-character")[index];
 			//li.innerHTML = '';
@@ -518,6 +538,11 @@ $(document).ready(function() {
 	$('div#attack-section').on('click', 'button#attack-button', function(event) {
 		// Note: poinst testing completed.  All working correctly.
 		game.log("Attack button was clicked!");
+
+		// If enemy was just defeated, and a new enemy has not yet been selected, do not allow attack button to do anything.
+		if(game.defeatActiveMode == true) {
+			return false;
+		}
 		// Set var you == your character, and var enemy == your enemy, for ease of access
 		var your = game.yourCharacterArray[0];
 		var enemy = game.yourEnemyArray[0];
@@ -581,13 +606,21 @@ $(document).ready(function() {
 
 		// Now check health values, to see if anybody was defeated, or if fight needs to continue
 		if(your.healthPoints > 0 && enemy.healthPoints < 1) {
+			alert("Nice way to go for the juggular; you won the fight!\nPlease select another enemy.");
 			// You won the fight.  First, set enemy already defeated val to true. Will dictate handling of next enemy selection
 			game.enemyAlreadyDefeated = true;
+
+			// Set defeat active mode to true so that attack button doesn't do anything
+			game.defeatActiveMode = true;
+
+			// Next, increment the enemies defeated count by 1. Once it reaches same value as enemies available array, game is over.
+			game.enemiesDefeatedCount += 1;
 			// Remove the enemy from the enemies available array.
+			/* THIS WAS SCREWING UP html id index and actual index of array, causing mis-match
 			game.log('enemies available array before splice: ' + game.enemiesAvailableArray);
 			game.enemiesAvailableArray.splice(game.currentEnemyIndex, 1);
 			game.log("Enemies available array: " + game.enemiesAvailableArray);
-
+			*/
 			// Now remove the enemies from the screen. Start with the battleground area enemy
 			var ul = document.getElementById("battle-character");
 			var li = ul.getElementsByTagName('li')[1]; // Enemy will always be 2nd
@@ -605,18 +638,26 @@ $(document).ready(function() {
 			li.removeChild(p2);
 
 			// Continue fighting by selecting another enemy (only if there are enemies left in the enemiesAvailableArray)
-			if(game.enemiesAvailableArray.length > 0) {
-
-			} else {
+			if(game.enemiesDefeatedCount == game.enemiesAvailableArray.length) {
 				// No more enemies left, so you won the game! Congrats!
 				game.log("Game is over!");
+				alert("Congratulations, you won the game! You are Jedi Master!");
+				return false;
 			}
 		} else if (your.healthPoints < 1 && enemy.healthPoints > 0) {
 			// You lost the fight.  Game over!!
+			// Set defeat active mode to true so that attack button doesn't do anything
+			game.defeatActiveMode = true;
+			alert("You lost the game; you need to work on your Jedi Master skills!");
+			// Right here, you need to set something that disallows another enemy select action
+
 
 		} else if (your.healthPoints < 1 && enemy.healthPoints < 1) {
 			// Your health and enemy's health when below 0. You both died, but one character died more than the other...
-
+			// Set defeat active mode to true so that attack button doesn't do anything
+			game.defeatActiveMode = true;
+			var winner = (your.healthPoints > enemy.healthPoints) ? "your enemy" : "you";
+			alert("Game over!  You both died, but " + msg + " died more!");
 		} else {
 			// All other combinations being exhausted, now the only option left is to continue fighting
 		}
