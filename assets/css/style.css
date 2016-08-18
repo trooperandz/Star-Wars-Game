@@ -1,5 +1,7 @@
 .jumbotron {
 	margin-bottom: 5px;
+	background-color: #000;
+	color: #fff;
 }
 
 .text-center {
@@ -30,6 +32,10 @@
 	display: inline-block;
 }
 
+section {
+	background-color: #4aaaa5;
+}
+
 div #display-characters {
 	margin-top: 8%;
 }
@@ -57,6 +63,12 @@ p.character-label {
 
 p.character-health {
 	margin: 0;
+}
+
+/* This is the "DEFEATED" label created on left panel dynamically after character is defeated */
+.side-defeat-label {
+	color: red;
+	font-weight: bold;
 }
 
 /* Note: when your characters become assigned, do this to the <li> to make it have a border etc, if you decide it looks good:

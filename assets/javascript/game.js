@@ -137,7 +137,7 @@ var game = {
 		}
 	],
 	// Set the attack mode to false at initialization.  Will determine append instructions during battleplay
-	attackMode: false,
+	attackActiveMode: false,
 	// Array containing a single object, representing the character you chose
 	yourCharacterArray: [],
 	// Array of enemy character objects, displayed in the Enemies Available To Attach section
@@ -152,6 +152,10 @@ var game = {
 	yourTempAttackPower: 0,
 	// Set initial attack to true.  Determines the setting of your temp attack power.  When false, does not reassign value (only increments)
 	initialAttack: true,
+	// Save the current enemy in battle's index position, so can be removed from enemies available to attack array
+	//currentEnemyIndex: 0,  DONT NEED THIS, as aready removed from screen upon initial selection
+	// This will be used in conjunction with initialAttack to determine the append instructions when selecting another enemy after defeating initial
+	enemyAlreadyDefeated: false,
 
 	// Function to create section heading
 	// Note: dataObj contains: parent_id, h4_text
@@ -169,7 +173,7 @@ var game = {
 	},
 
 	// Function to dynamically create character list for each section
-	// Note: dataObj contains: array, parent_id, ul_id, li_class, img_class, p1_class, p2_class
+	// Note: dataObj contains: array, parent_id, ul_id, li_class, li_id, img_class, p1_class, p2_class, p2_id
 	createCharacterList: function(dataObj) {
 		this.log('dataObj: ' + dataObj);
 		//var parent_id = dataObj.parent_id;
@@ -177,7 +181,8 @@ var game = {
 		var parent = document.getElementById(dataObj.parent_id);
 		// Now create the ul with class your-character
 		var ul = document.createElement("ul");
-		// Give the ul an id
+		// Give the ul a class and id
+		ul.setAttribute("class", dataObj.ul_id);
 		ul.setAttribute("id", dataObj.ul_id);
 		// Append the <ul> to the parent div
 		parent.appendChild(ul);
@@ -188,7 +193,7 @@ var game = {
 			// Add class li-character to each <li>
 			li.setAttribute("class", dataObj.li_class);
 			// Add dynamic id to each <li> for later click handling. Use class + number i to target items
-			li.setAttribute("id", i);
+			li.setAttribute("id", dataObj.li_id + i);
 			// Append the <li> to the <ul>
 			ul.appendChild(li);
 			// Create an img tag
@@ -215,6 +220,8 @@ var game = {
 			var p = document.createElement('p');
 			// Add a class to the p element
 			p.setAttribute("class", dataObj.p2_class);
+			// Add an id to the p element for easy targeting of healthPoints
+			p.setAttribute("id", dataObj.p2_id);
 			// Create a node for the health text
 			var text = document.createTextNode(arr[i].healthPoints);
 			// Append the new p element to the <li>
@@ -246,19 +253,19 @@ $(document).ready(function() {
 		parent_id: "display-characters" ,
 		ul_id: 	   "master-char-list"	,
 		li_class:  "li-character"		,
+		li_id:     "char"				,
 		img_class: "bg-blue"			,
 		p1_class:  "character-label"	,
-		p2_class:  "character-health"
+		p2_class:  "character-health"   ,
+		p2_id:     "character-health"
 	}
 	game.createCharacterList(dataObj);
 
 	// When the user clicks a character, assign that character to them, and assign everyone else as enemies
 	$('div#display-characters li').on('click', function(event) {
 	//$(document.body).on('click', 'div#display-characters li', function(event) {
-		// Set the character number based on the <li> id
-		var characterIndex = $(this).attr('id');
-		// Cast to integer, so that .push works below
-		var index = parseInt(characterIndex);
+		// Set the character number based on the <li> id. Remove the words from the index number with slice()
+		var index = $(this).attr('id').slice(-1);
 		game.log('character index chosen: ' + index);
 		// Assign your character to your array by accessing the index in the master array
 		// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
@@ -296,9 +303,11 @@ $(document).ready(function() {
 			parent_id: "display-protagonist",
 			ul_id: 	   "your-character"		,
 			li_class:  "li-your-character"	,
+			li_id:     "yourchar"			,
 			img_class: "bg-blue"			,
 			p1_class:  "character-label"	,
-			p2_class:  "character-health"
+			p2_class:  "character-health"   ,
+			p2_id:     "character-health"
 		}
 		game.createCharacterList(dataObj);
 
@@ -315,9 +324,11 @@ $(document).ready(function() {
 			parent_id: "display-enemies"	 ,
 			ul_id: 	   "enemy-character"	 ,
 			li_class:  "li-enemy-character"	 ,
+			li_id:     "enemy"			 	 ,
 			img_class: "bg-red"				 ,
 			p1_class:  "character-label"	 ,
-			p2_class:  "character-health"
+			p2_class:  "character-health"    ,
+			p2_id:     "character-health"
 		}
 		game.createCharacterList(dataObj);
 	});
@@ -325,29 +336,28 @@ $(document).ready(function() {
 	// When the user chooses an enemy, assign it to the defender array
 	//$('div#display-enemies li').on('click', function(event) {
 	$(document.body).on('click', 'div#display-enemies li', function(event) {
-		if(!game.attackMode) {
-			// If game is not yet in attack mode, append new material for attack area, battle area and opponent area
-			game.log('enemy was just selected!');
-			// Set the character number based on the <li> id
-			var characterIndex = $(this).attr('id');
-			// Cast to integer, so that .push works below
-			var index = parseInt(characterIndex);
-			game.log('character index chosen: ' + index);
-			// Assign character to defender array by accessing the index in the enemy array
-			// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
-			game.log('game.enemiesAvailableArray[index]: ' + game.enemiesAvailableArray[index]);
-			var pushObj = game.enemiesAvailableArray[index];
-			game.log('typeof pushObj: ' + typeof pushObj);
-			// Push the character chosen onto defender character array, and current battle array (will be object)
+		game.log('enemy was just selected!');
+		// Set the character number based on the <li> id. Will always match position, as html is created dynamically from the array itself.
+		// Use slice to remove the words before the index number, for later use of index position
+		var index = $(this).attr('id').slice(-1);
+		// Save the enemy select index postion, for later removal from enemies available array
+		game.currentEnemyIndex = index;
+		// Assign character to defender array by accessing the index in the enemy array
+		var pushObj = game.enemiesAvailableArray[index];
+		// If haven't attacked anybody yet, and thus no enemy has been defeated, append new content etc
+		if(!game.attackActiveMode && !game.enemyAlreadyDefeated) {
+			// Push the character chosen onto defender character array, and current battle array (will be objects)
 			game.yourEnemyArray.push(pushObj);
-			game.log('yourEnemyArray : ' + game.yourEnemyArray);
 			game.currentBattleArray.push(pushObj);
 			// Remove the character selected from the enemies available array, as they will now be the defender
 			game.enemiesAvailableArray.splice(index, 1);
-			game.log('masterCharacterArray after splice: ' + game.masterCharacterArray);
 			// Remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
-			li = document.getElementsByClassName("li-enemy-character")[index];
-			li.innerHTML = '';
+			//li = document.getElementsByClassName("li-enemy-character")[index];
+			//li.innerHTML = '';
+			// Note: there will always only be one of these
+			var ul = document.getElementsByClassName("enemy-character")[0];
+			var li = document.getElementById("enemy" + index);
+			ul.removeChild(li);
 	
 			// Insert content into the left-divide-section
 			var parent = document.getElementById("left-divide-section");
@@ -360,7 +370,7 @@ $(document).ready(function() {
 			// Insert content into the attack section (button etc)
 			var parent = document.getElementById("attack-section");
 			var button = document.createElement('button');
-			button.setAttribute("class", "btn btn-default");
+			button.setAttribute("class", "btn btn-warning");
 			button.setAttribute("type", "button");
 			button.setAttribute("id", "attack-button");
 			var text = document.createTextNode("Attack Now!");
@@ -381,9 +391,11 @@ $(document).ready(function() {
 				parent_id: "display-defender"	  ,
 				ul_id: 	   "defender-character"	  ,
 				li_class:  "li-defender-character",
+				li_id:     "defender"			  ,
 				img_class: "bg-black"			  ,
 				p1_class:  "character-label"	  ,
-				p2_class:  "character-health"
+				p2_class:  "character-health"     ,
+				p2_id:     "character-health"
 			}
 			game.createCharacterList(dataObj);
 	
@@ -407,9 +419,11 @@ $(document).ready(function() {
 				parent_id: "battle-ground"	  	  ,
 				ul_id: 	   "battle-character"	  ,
 				li_class:  "li-battle-character"  ,
+				li_id:     "battle"				  ,
 				img_class: "bg-blue"			  ,
 				p1_class:  "character-label"	  ,
-				p2_class:  "character-health"
+				p2_class:  "character-health"     ,
+				p2_id:     "character-health"
 			}
 			game.createCharacterList(dataObj);
 	
@@ -419,18 +433,90 @@ $(document).ready(function() {
 			img.setAttribute("class", "bg-black");
 	
 			// Now set the game attackMode state to true, so that content is replaced instead of appended
-			game.attackMode = true;
+			game.attackActiveMode = true;
+		} else if (game.attackActiveMode && game.enemyAlreadyDefeated) {
+			// If attack mode has been initialized, and an enemy has been defeated, replace old enemy content with new enemy content
+			// First, remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
+			//li = document.getElementsByClassName("li-enemy-character")[index];
+			//li.innerHTML = '';
+			// Note: there will always only be one of these
+			var ul = document.getElementsByClassName("enemy-character")[0];
+			var li = document.getElementById("enemy" + index);
+			ul.removeChild(li);
+
+			// Next, replace defender and battle enemy character array elements with new enemy character selected
+			game.log('yourEnemyArray before splice: ' + game.yourEnemyArray);
+			game.log('currentBattleArray before splice: ' + game.currentBattleArray);
+			game.yourEnemyArray.splice(0, 1, pushObj);
+			game.currentBattleArray.splice(1, 1, pushObj);
+			game.log('yourEnemyArray after splice: ' + game.yourEnemyArray);
+			game.log('currentBattleArray after splice: ' + game.currentBattleArray);
+
+			// Empty the #display-defender content to make room for new content
+			var parent = document.getElementById("display-defender");
+			parent.innerHTML = "";
+
+			// Empty the #battle-ground content to make room for new content
+			var parent = document.getElementById("battle-ground");
+			parent.innerHTML = "";
+
+			// Now update left enemy area display with new content
+			var dataObj = { 
+				parent_id: "display-defender", 
+				h4_text:   "Your Opponent Is:" 
+			};
+			game.createSectionHeading(dataObj);
+		
+			var dataObj = {
+				array: game.yourEnemyArray,
+				parent_id: "display-defender"	  ,
+				ul_id: 	   "defender-character"	  ,
+				li_class:  "li-defender-character",
+				li_id:     "defender"			  ,
+				img_class: "bg-black"			  ,
+				p1_class:  "character-label"	  ,
+				p2_class:  "character-health"     ,
+				p2_id:     "character-health"
+			}
+			game.createCharacterList(dataObj);
+
+			// Now update battle display with new contents of battle array.  DANGER: will this reset your character's health value back to initial??
+			var dataObj = { 
+				parent_id: "battle-ground", 
+				h4_text:   "Battleground" 
+			};
+			game.createSectionHeading(dataObj);
+		
+			var dataObj = {
+				array: game.currentBattleArray	  ,
+				parent_id: "battle-ground"	  	  ,
+				ul_id: 	   "battle-character"	  ,
+				li_class:  "li-battle-character"  ,
+				li_id:     "battle"			      ,
+				img_class: "bg-blue"			  ,
+				p1_class:  "character-label"	  ,
+				p2_class:  "character-health"     ,
+				p2_id:     "character-health"
+			}
+			game.createCharacterList(dataObj);
+
+			// Now change the background color of the second li-battle-character to match enemy color. Will always be in 2nd position (1)
+			var li = document.getElementsByClassName("li-battle-character")[1];
+			var img = li.children[1];
+			img.setAttribute("class", "bg-black");
+
 		} else {
 			// If game is in attack mode (true), replace character content instead of appending new content
 			// Here, you need two checks: 1) if in attack mode, and enemy health > 0, do nothing.
 			// Else if in attack mode, and enemy health < 1, then a) remove enemy from battlground and b) replace enemy 
 			// with newly selected enemy
-
+			alert("Sorry, but you can't run away from your fight! \nYou gotta finish to defend your rep, man!");
 			console.log("entered game attack mode else");
 		}
 	});
 
 	$('div#attack-section').on('click', 'button#attack-button', function(event) {
+		// Note: poinst testing completed.  All working correctly.
 		game.log("Attack button was clicked!");
 		// Set var you == your character, and var enemy == your enemy, for ease of access
 		var your = game.yourCharacterArray[0];
@@ -458,6 +544,82 @@ $(document).ready(function() {
 		// Now increase your yourTempAttackPower by your attackPower base value
 		game.yourTempAttackPower +=  your.attackPower;
 		game.log("Your temp attack power after attack: " + game.yourTempAttackPower);
+
+
+		// Need to put the below code blocks inside of a function instead
+		// Now update the health displays.  Start with updating your character.
+		// Note: your character area will always be index == 0, as it is always the only item in the array
+		var parent = document.getElementById("display-protagonist");
+		// Access the health display, which will always be in position [1]
+		var p = parent.getElementsByTagName('p')[1];
+		var healthValue = document.createTextNode(your.healthPoints);
+		// Clear the p contents first, to allow for appendChild() method. Can't do straight-up innerHTML, as healthValue is an object.
+		// innerHTML requires a string?????? VERIFY THIS
+		p.innerHTML = "";
+		p.appendChild(healthValue);
+
+		// Now update your health inside of the battle area
+		var parent = document.getElementById("battle-ground");
+		var p = parent.getElementsByTagName('p')[1];
+		var healthValue = document.createTextNode(your.healthPoints);
+		p.innerHTML = "";
+		p.appendChild(healthValue);
+
+		// Now update the enemy's health on the left of the screen
+		var parent = document.getElementById("display-defender");
+		var p = parent.getElementsByTagName('p')[1];
+		var healthValue = document.createTextNode(enemy.healthPoints);
+		p.innerHTML = "";
+		p.appendChild(healthValue);
+
+		// Now update the enemy's health inside of the battle area
+		var parent = document.getElementById("battle-ground");
+		var p = parent.getElementsByTagName('p')[3];
+		var healthValue = document.createTextNode(enemy.healthPoints);
+		p.innerHTML = "";
+		p.appendChild(healthValue);
+
+		// Now check health values, to see if anybody was defeated, or if fight needs to continue
+		if(your.healthPoints > 0 && enemy.healthPoints < 1) {
+			// You won the fight.  First, set enemy already defeated val to true. Will dictate handling of next enemy selection
+			game.enemyAlreadyDefeated = true;
+			// Remove the enemy from the enemies available array.
+			game.log('enemies available array before splice: ' + game.enemiesAvailableArray);
+			game.enemiesAvailableArray.splice(game.currentEnemyIndex, 1);
+			game.log("Enemies available array: " + game.enemiesAvailableArray);
+
+			// Now remove the enemies from the screen. Start with the battleground area enemy
+			var ul = document.getElementById("battle-character");
+			var li = ul.getElementsByTagName('li')[1]; // Enemy will always be 2nd
+			ul.removeChild(li);
+			// Alse remove enemy img and enemy label from left side area and replace with <p class="side-defeat-label"> DEFEATED! </p>
+			var li = document.getElementsByClassName("li-defender-character")[0]; // Will always be 1st, as is the only item in container
+			var p1 = li.getElementsByTagName('p')[0];
+			var text = document.createTextNode("DEFEATED!");
+			var img = li.getElementsByTagName('img')[0];
+			var p2 = li.getElementsByTagName('p')[1];
+			p1.setAttribute("class", "side-defeat-label");
+			p1.innerHTML = "";
+			p1.appendChild(text);
+			li.removeChild(img);
+			li.removeChild(p2);
+
+			// Continue fighting by selecting another enemy (only if there are enemies left in the enemiesAvailableArray)
+			if(game.enemiesAvailableArray.length > 0) {
+
+			} else {
+				// No more enemies left, so you won the game! Congrats!
+				game.log("Game is over!");
+			}
+		} else if (your.healthPoints < 1 && enemy.healthPoints > 0) {
+			// You lost the fight.  Game over!!
+
+		} else if (your.healthPoints < 1 && enemy.healthPoints < 1) {
+			// Your health and enemy's health when below 0. You both died, but one character died more than the other...
+
+		} else {
+			// All other combinations being exhausted, now the only option left is to continue fighting
+		}
 
 		// Set initialAttack == false so that next time attack is clicked, temp attack power does not get reset to initial attack power value
 		game.initialAttack = false;
