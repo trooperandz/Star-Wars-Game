@@ -1,0 +1,68 @@
+
+Gneral Notes:
+	1) A big array/object of possible characters
+	2) An object/etc. of your character chosen
+	3) An array/object of enemies
+	4) each character will be its own object with the properties:
+		name
+		visual
+		healthPoints
+		attackPower
+		counterAttackPower
+	5) Characters
+		javaTheHut
+		yoda
+		bobaFett
+		darthMaul
+		generalGrievous
+		mazKanata
+		darthVader
+		lukeSkywalker
+
+Sections:
+	
+	1) Display all characters section
+	2) Your Character section below that (empty div)
+	3) Enemies Available to Attach
+	4) Fight Section which houses the attack button
+	5) Defender Section (will dynamically display enemy being attached) (empty div)
+	6) Points Section
+		<div class="game-attack-text">
+			
+		</div>
+	Visual list of all possible characters
+	Your character == object
+	Enemies to fight == array of enemy objects
+	Background image
+	Audio tags (background music, attack noises, defeated noises, win noise)
+
+
+Vars:
+
+Initial Gameplay:
+	1) Page loads, and modal displays "Do You Accept The Challenge?""  with button "Play" - need modal show instruction
+	and displays the list of characters and empty sections (music begins)
+	2) Modal goes away 
+	3) user selects their character (click function)
+		-Assign selection to yourCharacterObj
+		-Character moves to Your Character section
+		-Enemies Available To Attack updates
+	4) User selects character to attack (click function)
+		-Assign selection to yourEnemyObj
+		-Initialize the enemy's
+		-Selected enemy gets moved to defender section and is removed from enemies to attack section
+
+Attack Gameplay:
+	1) User clicks attack (click function)
+		-Initialize 
+
+Attack Button (Java (you) vs. Yoda (enemy))
+	1) Your character's attack power reduces the enemy's health points
+		Reduces yoda by 10 (attackPower. Note: next time, it would reduce yoda's by 20, etc.).  Yoda's healthPoints become 490, 470, etc.
+		Java's attackPower is increased by the attackPowerFactor
+	2) Your enemy counterattack (fixed) reduces your character's health points by their counterAttackPower
+	3) You attackPower increases for every attack by your 
+
+
+Win Scenario:
+	1) Remove defender, and reset yourEnemyObj;

@@ -1,74 +1,13 @@
-/*
-	Gneral Notes:
-		1) A big array/object of possible characters
-		2) An object/etc. of your character chosen
-		3) An array/object of enemies
-		4) each character will be its own object with the properties:
-			name
-			visual
-			healthPoints
-			attackPower
-			counterAttackPower
-		5) Characters
-			javaTheHut
-			yoda
-			bobaFett
-			darthMaul
-			generalGrievous
-			mazKanata
-			darthVader
-			lukeSkywalker
+/**
+ * Program: game.js
+ * Created: 08/19/2016 by Matt Holland
+ * Located: desktop/bootcamp/homework/week-4-game/assets/javascript
+ * Purpose: Provide gameplay code for 4th assignment - Star Wars RPG
+ */
 
-	Sections:
-		
-		1) Display all characters section
-		2) Your Character section below that (empty div)
-		3) Enemies Available to Attach
-		4) Fight Section which houses the attack button
-		5) Defender Section (will dynamically display enemy being attached) (empty div)
-		6) Points Section
-			<div class="game-attack-text">
-				
-			</div>
-		Visual list of all possible characters
-		Your character == object
-		Enemies to fight == array of enemy objects
-		Background image
-		Audio tags (background music, attack noises, defeated noises, win noise)
-
-
-	Vars:
-
-	Initial Gameplay:
-		1) Page loads, and modal displays "Do You Accept The Challenge?""  with button "Play" - need modal show instruction
-		and displays the list of characters and empty sections (music begins)
-		2) Modal goes away 
-		3) user selects their character (click function)
-			-Assign selection to yourCharacterObj
-			-Character moves to Your Character section
-			-Enemies Available To Attack updates
-		4) User selects character to attack (click function)
-			-Assign selection to yourEnemyObj
-			-Initialize the enemy's
-			-Selected enemy gets moved to defender section and is removed from enemies to attack section
-
-	Attack Gameplay:
-		1) User clicks attack (click function)
-			-Initialize 
-
-	Attack Button (Java (you) vs. Yoda (enemy))
-		1) Your character's attack power reduces the enemy's health points
-			Reduces yoda by 10 (attackPower. Note: next time, it would reduce yoda's by 20, etc.).  Yoda's healthPoints become 490, 470, etc.
-			Java's attackPower is increased by the attackPowerFactor
-		2) Your enemy counterattack (fixed) reduces your character's health points by their counterAttackPower
-		3) You attackPower increases for every attack by your 
-
-
-	Win Scenario:
-		1) Remove defender, and reset yourEnemyObj;
-*/
+// Establish main game object, to contain all game properties and functions
 var game = {
-	// The master array of all possible characters, stored as objects
+	// The master array of all possible characters (8), stored as objects
 	masterCharacterArray: [
 
 		{
@@ -137,30 +76,39 @@ var game = {
 	],
 	// Array containing a single object, representing the character you chose
 	yourCharacterArray: [],
-	// Array of enemy character objects, displayed in the Enemies Available To Attach section
+
+	// Array of enemy character objects, displayed in the Select An Opponent To Attack section
 	enemiesAvailableArray: [],
+
 	// Array containing a single object, representing the enemy you chose
 	yourEnemyArray: [],
-	// Store two currently battling characters as an array. May want to change the display later
+
+	// Store two currently battling character objects in an array, for ease of display
 	currentBattleArray: [],
+
 	// Store temp value of protagonist's attackPower for use during battle.
 	// Note: during gameply, original "attackPower" will stay fixed until game over
 	// "yourTempAttackPower" will increase by base "attackPower" on each attack button click
 	yourTempAttackPower: 0,
+
 	// Set initial attack click to true.  Determines the setting of your temp attack power.  When false, does not reassign value (only increments)
 	// Note: ONLY use inside of attack button click handler
 	initialAttackClick: true,
+
 	// Set the attack mode to false at initialization.  Will determine append instructions during battleplay.
 	// If false, disallows any append action when enemy img is clicked.  If true, allows append instruction to follow enemy img click
 	attackActiveMode: false,
-	// This will be used in conjunction with initialAttackClick to determine the append instructions when selecting another enemy after defeating initial
+
+	// This will be used in conjunction with attackActiveMode to determine the append instructions when selecting another enemy
 	enemyAlreadyDefeated: false,
-	// Set boolean value to determine action for Attack button click. If defeatActiveMode == true, then an enemy has just been defeated
-	// Disallow any click to affect health points.  Reset to false inside of div#enemy-character click when a new enemy has been selected
+
+	// This will be used to determine action for Attack button click. If defeatActiveMode == true, then an enemy has just been defeated,
+	// disallowing any click to affect health points.  Reset to false inside of div#enemy-character click when a new enemy has been selected
+	// so that attack button may be used again
 	defeatActiveMode: false,
-	// Keep track of enemies defeatd, so that you know when the character has won if total == length of enemiesAvailableArray
+
+	// Keep track of enemies defeated, so that you know when your character has won if total == length of enemiesAvailableArray
 	// Value will be incremented in main program code, after an enemy has been defeated
-	// Note: originally removed enemies from array after defeat.  However, this scrambles up the array indexes and mismatches them with li id
 	enemiesDefeatedCount: 0,
 	
 	// Function to create section heading
@@ -179,7 +127,7 @@ var game = {
 	},
 
 	// Function to dynamically create character list for each section
-	// Note: dataObj contains: array, parent_id, ul_id, li_class, li_id, img_class, p1_class, p2_class, p2_id
+	// Note: dataObj contains: array, parent_id, ul_id, li_class, li_id, img_class, p1_class, p2_class, p2_id. li_id used for li class & id
 	createCharacterList: function(dataObj) {
 		this.log('dataObj: ' + dataObj);
 		//var parent_id = dataObj.parent_id;
@@ -236,6 +184,15 @@ var game = {
 			p.appendChild(text);
 		});
 	},
+
+	// Function to update character health point values on the screen
+	// Note: dataObj contains the following: 'parentId', 'updateElement', 'elementIndex', 'healthPoints'
+	updateHealthPoints: function(dataObj) {
+		var parent = document.getElementById(dataObj.parentId);
+		var p = parent.getElementsByTagName(dataObj.updateElement)[dataObj.elementIndex];
+		p.innerHTML = dataObj.healthPoints;
+	},
+
 	// Function that calculates currentAttackPower
 
 	// Function to console.log items
@@ -289,12 +246,8 @@ $(document).ready(function() {
 
 		// Rename the resulting array to enemiesAvailableArray for visual purposes
 		// Note: this will not create a copy of the original array; it will point
-		// to the same location in memory.  Any alterations will affect the master array
+		// to the same location in memory.  Any alterations will also affect the master array
 		game.enemiesAvailableArray = game.masterCharacterArray;
-
-		// Set defeated count to determine later on if protagonish has won the entire game. Initial value == 7
-		//game.enemiesDefeatedCount = game.enemiesAvailableArray.length;
-		//game.log("enemies defeated count: " + game.enemiesDefeatedCount);
 
 		// Remove the original character list from the DOM, before adding new content.
 		var el = document.getElementById("display-characters");
@@ -348,10 +301,6 @@ $(document).ready(function() {
 	$(document.body).on('click', 'div#display-enemies li', function(event) {
 		game.log('enemy was just selected!');
 
-		// If user selected a new enemy, another battle has begun. Set defeat active mode to false so that attack button functionality works
-		// Might need to move this??  Shouldnt' it really be set inside of the attack section??
-		//game.defeatActiveMode = false;
-
 		// Set the character number based on the <li> id. Will always match position, as html is created dynamically from the array itself.
 		// Use slice to remove the words before the index number, for later use of index position
 		var index = $(this).attr('id').slice(-1);
@@ -361,8 +310,8 @@ $(document).ready(function() {
 
 		// If haven't attacked anybody yet, and thus no enemy has been defeated, append new content etc
 		if(!game.attackActiveMode && !game.enemyAlreadyDefeated) {
-
-			//game.defeatActiveMode = 
+			// Set defeat active mode to false so that the attack button may be clicked after this code runs
+			game.defeatActiveMode = false;
 
 			// Push the character chosen onto defender character array, and current battle array (will be objects)
 			game.yourEnemyArray.push(pushObj);
@@ -400,7 +349,7 @@ $(document).ready(function() {
 			};
 			game.createSectionHeading(dataObj);
 		
-			// Create select character list from enemies
+			// Create enemy display list from enemies
 			var dataObj = {
 				array: game.yourEnemyArray,
 				parent_id: "display-defender"	  ,
@@ -414,21 +363,14 @@ $(document).ready(function() {
 			}
 			game.createCharacterList(dataObj);
 	
-			/*
-			// Put something into #fight-results section
-			var parent = document.getElementById("fight-results");
-			var h4 = document.createElement('h4');
-			var text = document.createTextNode("Battle Results");
-			h4.appendChild(text);
-			parent.appendChild(h4);*/
-			// Create section heading for enemy display
+			// Create section heading for battleground display
 			var dataObj = { 
 				parent_id: "battle-ground", 
 				h4_text:   "Battleground" 
 			};
 			game.createSectionHeading(dataObj);
 		
-			// Create select character list from enemies
+			// Create character display list for battleground
 			var dataObj = {
 				array: game.currentBattleArray	  ,
 				parent_id: "battle-ground"	  	  ,
@@ -447,15 +389,14 @@ $(document).ready(function() {
 			var img = li.children[1];
 			img.setAttribute("class", "bg-black");
 	
-			// Now set the game attackMode state to true, so that content is replaced instead of appended
+			// Now set the game attackMode state to true, so that content is replaced instead of appended the next time an enemy is selected
 			game.attackActiveMode = true;
 
 		} else if (game.attackActiveMode && game.enemyAlreadyDefeated) {
+			// Set defeat active mode to false so that the attack button may be clicked after this code runs
+			game.defeatActiveMode = false;
+
 			// If attack mode has been initialized, and an enemy has been defeated, replace old enemy content with new enemy content
-			// First, remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
-			//li = document.getElementsByClassName("li-enemy-character")[index];
-			//li.innerHTML = '';
-			// Note: there will always only be one of these
 			var ul = document.getElementsByClassName("enemy-character")[0];
 			var li = document.getElementById("enemy" + index);
 			ul.removeChild(li);
@@ -483,6 +424,7 @@ $(document).ready(function() {
 			};
 			game.createSectionHeading(dataObj);
 		
+			// Create enemy display list from enemy array
 			var dataObj = {
 				array: game.yourEnemyArray,
 				parent_id: "display-defender"	  ,
@@ -496,13 +438,14 @@ $(document).ready(function() {
 			}
 			game.createCharacterList(dataObj);
 
-			// Now update battle display with new contents of battle array.  DANGER: will this reset your character's health value back to initial??
+			// Now update battle display heading
 			var dataObj = { 
 				parent_id: "battle-ground", 
 				h4_text:   "Battleground" 
 			};
 			game.createSectionHeading(dataObj);
 		
+			// Now create character display list for battleground area
 			var dataObj = {
 				array: game.currentBattleArray	  ,
 				parent_id: "battle-ground"	  	  ,
@@ -521,20 +464,22 @@ $(document).ready(function() {
 			var img = li.children[1];
 			img.setAttribute("class", "bg-black");
 
-		} else if (!game.attackActiveMode && !game.defeatActiveMode) {
+			// Set enemy already defeated back to false so that this append code does not run again (you are in an active fight)
+			game.enemyAlreadyDefeated = false;
+		
+		} else {
 			// If an attack is not in progress, and no character has recently been defeated (including you), do nothing on enemy image click
 			alert("Sorry, but you can't run away from your fight! \nYou gotta finish to defend your rep, man!");
-			console.log("entered game attack mode else");
+			console.log("entered enemy image click else statement");
 		}
 	});
 
 	$('div#attack-section').on('click', 'button#attack-button', function(event) {
-		// Note: poinst testing completed.  All working correctly.
 		game.log("Attack button was clicked!");
 
-		// If enemy was just defeated, and a new enemy has not yet been selected, do not allow attack button to do anything.
-		// Maybe also put condition of attackActiveMode in here too?
+		// If enemy was just defeated, and a new enemy has not yet been selected, do not allow attack button to do anything
 		if(game.defeatActiveMode) {
+			alert("You can't attack without an opponent, knucklehead.  \nPlease select another!");
 			console.log("Entered false return of attack button, since defeatActiveMode == true");
 			return false;
 		}
@@ -556,9 +501,8 @@ $(document).ready(function() {
 		// Now reduce your health by your enemy's counter attack power
 		your.healthPoints -= enemy.counterAttackPower;
 		game.log("Your health was reduced by " + enemy.counterAttackPower + " points. \n Your health after attack: " + your.healthPoints);
-		// Note: would need something here to check for < 1 healthpoints.  If so, game is over.
 
-		// Now reduce your enemy's health by your temp attack power. Must do so before incrementing temp attack power, else unfair
+		// Now reduce your enemy's health by your temp attack power. Must do so before incrementing temp attack power, else unfair for enemy!
 		enemy.healthPoints -= game.yourTempAttackPower;
 		game.log("Your enemy's health was reduced by " + game.yourTempAttackPower + " points.  \n Your enemy's health after attack: " + enemy.healthPoints);
 
@@ -566,28 +510,21 @@ $(document).ready(function() {
 		game.yourTempAttackPower +=  your.attackPower;
 		game.log("Your temp attack power after attack: " + game.yourTempAttackPower);
 
-
-		// Need to put the below code blocks inside of a function instead
-		// Now update the health displays.  Start with updating your character.
-		// Note: your character position will always be index == 0, as it is always the only item in the array
-		var parent = document.getElementById("display-protagonist");
-		var p = parent.getElementsByTagName('p')[1];
-		p.innerHTML = your.healthPoints;
+		// Now update your health inside of the left character display area
+		var dataObj = { parentId: "display-protagonist", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
+		game.updateHealthPoints(dataObj);
 
 		// Now update your health inside of the battle area
-		var parent = document.getElementById("battle-ground");
-		var p = parent.getElementsByTagName('p')[1];
-		p.innerHTML = your.healthPoints;
+		var dataObj = { parentId: "battle-ground", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
+		game.updateHealthPoints(dataObj);
 
-		// Now update the enemy's health on the left of the screen
-		var parent = document.getElementById("display-defender");
-		var p = parent.getElementsByTagName('p')[1];
-		p.innerHTML = enemy.healthPoints;
+		// Now update enemy's health inside of the left character display area
+		var dataObj = { parentId: "display-defender", updateElement: "p", elementIndex: 1, healthPoints: enemy.healthPoints }
+		game.updateHealthPoints(dataObj);
 
 		// Now update the enemy's health inside of the battle area
-		var parent = document.getElementById("battle-ground");
-		var p = parent.getElementsByTagName('p')[3];
-		p.innerHTML = enemy.healthPoints;
+		var dataObj = { parentId: "battle-ground", updateElement: "p", elementIndex: 3, healthPoints: enemy.healthPoints }
+		game.updateHealthPoints(dataObj);
 
 		// Now check health values, to see if anybody was defeated, or if fight needs to continue
 		if(your.healthPoints > 0 && enemy.healthPoints < 1) {
@@ -647,96 +584,4 @@ $(document).ready(function() {
 		// Set initialAttackClick == false so that next time attack is clicked, temp attack power does not get reset to initial attack power value
 		game.initialAttackClick = false;
 	});
-	
-	/* Orig Code (works)
-	// When the user chooses an enemy, assign it to the defender array
-	//$('div#display-enemies li').on('click', function(event) {
-	$(document.body).on('click', 'div#display-enemies li', function(event) {
-		// If game is not yet in attack mode, append new material for attack area, battle area and opponent area
-		game.log('enemy was just selected!');
-		// Set the character number based on the <li> id
-		var characterIndex = $(this).attr('id');
-		// Cast to integer, so that .push works below
-		var index = parseInt(characterIndex);
-		game.log('character index chosen: ' + index);
-		// Assign character to defender array by accessing the index in the enemy array
-		// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
-		game.log('game.enemiesAvailableArray[index]: ' + game.enemiesAvailableArray[index]);
-		var pushObj = game.enemiesAvailableArray[index];
-		game.log('typeof pushObj: ' + typeof pushObj);
-		// Push the character chosen onto defender character array, and current battle array (will be object)
-		game.yourEnemyArray.push(pushObj);
-		game.log('yourEnemyArray : ' + game.yourEnemyArray);
-		game.currentBattleArray.push(pushObj);
-		// Remove the character selected from the enemies available array, as they will now be the defender
-		game.enemiesAvailableArray.splice(index, 1);
-		game.log('masterCharacterArray after splice: ' + game.masterCharacterArray);
-		// Remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
-		li = document.getElementsByClassName("li-enemy-character")[index];
-		li.innerHTML = '';
-	
-		// Insert content into the left-divide-section
-		var parent = document.getElementById("left-divide-section");
-		var p = document.createElement('p');
-		p.setAttribute("class", "divide-label");
-		var text = document.createTextNode("VS");
-		parent.appendChild(p);
-		p.appendChild(text);
-	
-		// Insert content into the attack section (button etc)
-		var parent = document.getElementById("attack-section");
-		var button = document.createElement('button');
-		button.setAttribute("class", "btn btn-default");
-		button.setAttribute("type", "button");
-		var text = document.createTextNode("Attack Now!");
-		parent.appendChild(button);
-		button.appendChild(text);
-	
-		// Now display the defender under your character display, on left of screen in the #display-defender <aside>
-		// Create section heading for enemy display
-		var dataObj = { 
-			parent_id: "display-defender", 
-			h4_text:   "Your Opponent Is:" 
-		};
-		game.createSectionHeading(dataObj);
-		
-		// Create select character list from enemies
-		var dataObj = {
-			array: game.yourEnemyArray,
-			parent_id: "display-defender"	  ,
-			ul_id: 	   "defender-character"	  ,
-			li_class:  "li-defender-character",
-			img_class: "bg-black"			  ,
-			p1_class:  "character-label"	  ,
-			p2_class:  "character-health"
-		}
-		game.createCharacterList(dataObj);
-
-		// Create section heading for enemy display
-		var dataObj = { 
-			parent_id: "battle-ground", 
-			h4_text:   "Battleground" 
-		};
-		game.createSectionHeading(dataObj);
-		
-		// Create select character list from enemies
-		var dataObj = {
-			array: game.currentBattleArray	  ,
-			parent_id: "battle-ground"	  	  ,
-			ul_id: 	   "battle-character"	  ,
-			li_class:  "li-battle-character"  ,
-			img_class: "bg-blue"			  ,
-			p1_class:  "character-label"	  ,
-			p2_class:  "character-health"
-		}
-		game.createCharacterList(dataObj);
-	
-		// Now change the background color of the second li-battle-character to match enemy color. Will always be in 2nd position (1)
-		var li = document.getElementsByClassName("li-battle-character")[1];
-		var img = li.children[1];
-		img.setAttribute("class", "bg-black");
-	
-		// Now set the game attackMode state to true, so that content is replaced instead of appended
-		game.attackMode = true;
-	});*/
 });
