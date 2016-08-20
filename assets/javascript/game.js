@@ -110,6 +110,59 @@ var game = {
 	// Keep track of enemies defeated, so that you know when your character has won if total == length of enemiesAvailableArray
 	// Value will be incremented in main program code, after an enemy has been defeated
 	enemiesDefeatedCount: 0,
+
+	// Store all attack noises in an array of objects, with file source and <audio> tag id's so that html can be generated dynamically
+	attackNoiseArray: [
+
+		{
+			src: "assets/sounds/attack_sounds/clash1.wav",
+			audioId: "clash1"
+		},
+
+		{
+			src: "assets/sounds/attack_sounds/clash2.wav",
+			audioId: "clash2"
+		},
+
+		{
+			src: "assets/sounds/attack_sounds/clash3.wav",
+			audioId: "clash3"
+		},
+
+		{
+			src: "assets/sounds/attack_sounds/laser1.wav",
+			audioId: "laser1"
+		},
+
+		{
+			src: "assets/sounds/attack_sounds/saber1.wav",
+			audioId: "saber1"
+		},
+
+		{
+			src: "assets/sounds/attack_sounds/saber2.wav",
+			audioId: "saber2"
+		},
+
+		{
+			src: "assets/sounds/attack_sounds/hum1.wav",
+			audioId: "hum1"
+		}
+	],
+
+	createAudioAttackTags: function() {
+		// Grab parent div
+		var div = document.getElementById("attack-noises");
+		// Generate all html audio tags for attack noises, from attackNoiseArray
+		this.attackNoiseArray.forEach(function(object, i, array) {
+			// Create <audio> tag
+			var audio = document.createElement("audio");
+			audio.setAttribute("src", array[i].src);
+			audio.setAttribute("id", array[i].audioId);
+			// Append audio tag to div
+			div.appendChild(audio);
+		});
+	},
 	
 	// Function to create section heading
 	// Note: dataObj contains: parent_id, h4_text
@@ -185,6 +238,19 @@ var game = {
 		});
 	},
 
+	// When attack initiates, create random clash noise from array of audio files
+	initializeAttackSound: function() {
+		// Pick a random index from the attackNoiseIdArray
+		var index = Math.floor(Math.random() * this.attackNoiseArray.length);
+		console.log("createBattleSounds index generated: " + index);
+		// Now create an audio tag and place inside of div#attack-sounds
+		var id = this.attackNoiseArray[index].audioId;
+		console.log("attack sound id chosen: " + id);
+		var audio = document.getElementById(id);
+		// Now issue instruction to play the audio file
+		audio.play();
+	},
+
 	// Function to update character health point values on the screen
 	// Note: dataObj contains the following: 'parentId', 'updateElement', 'elementIndex', 'healthPoints'
 	updateHealthPoints: function(dataObj) {
@@ -193,7 +259,23 @@ var game = {
 		p.innerHTML = dataObj.healthPoints;
 	},
 
-	// Function that calculates currentAttackPower
+	// Play win music if character wins game
+	initializeWinMusic: function() {
+		// First, make sure the bg music is off
+		var bg_music = document.getElementById("main-theme");
+		var win_music = document.getElementById("win-theme");
+		bg_music.pause();
+		win_music.play();
+	},
+
+	// Play lose music if character loses game
+	initializeLoseMusic: function() {
+		// First, make sure the bg music is off
+		var bg_music = document.getElementById("main-theme");
+		var lose_music = document.getElementById("lose-theme");
+		bg_music.pause();
+		lose_music.play();
+	},
 
 	// Function to console.log items
 	log: function(msg) {
@@ -203,6 +285,9 @@ var game = {
 
 /* first program load list example */
 $(document).ready(function() {
+	// Generate html attack audio tags
+	game.createAudioAttackTags();
+
 	// Create section heading for beginning gameplay
 	var dataObj = { 
 		parent_id: "display-characters", 
@@ -310,6 +395,10 @@ $(document).ready(function() {
 
 		// If haven't attacked anybody yet, and thus no enemy has been defeated, append new content etc
 		if(!game.attackActiveMode && !game.enemyAlreadyDefeated) {
+			// Pause the background music when attack mode starts
+			var bg_music = document.getElementById("main-theme");
+			bg_music.pause();
+
 			// Set defeat active mode to false so that the attack button may be clicked after this code runs
 			game.defeatActiveMode = false;
 
@@ -484,6 +573,9 @@ $(document).ready(function() {
 			return false;
 		}
 
+		// Generate an attack noise
+		game.initializeAttackSound();
+
 		// Set var you == your character, and var enemy == your enemy, for ease of access
 		var your = game.yourCharacterArray[0];
 		var enemy = game.yourEnemyArray[0];
@@ -509,6 +601,9 @@ $(document).ready(function() {
 		// Now increase your yourTempAttackPower by your attackPower base value
 		game.yourTempAttackPower +=  your.attackPower;
 		game.log("Your temp attack power after attack: " + game.yourTempAttackPower);
+
+		// Now make the sword attack noise
+
 
 		// Now update your health inside of the left character display area
 		var dataObj = { parentId: "display-protagonist", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
@@ -558,16 +653,17 @@ $(document).ready(function() {
 			if(game.enemiesDefeatedCount == game.enemiesAvailableArray.length) {
 				// No more enemies left, so you won the game! Congrats!
 				game.log("Game is over!");
+				game.initializeWinMusic();
 				alert("Congratulations, you won the game! You are Jedi Master!");
 				return false;
 			}
+
 		} else if (your.healthPoints < 1 && enemy.healthPoints > 0) {
 			// You lost the fight.  Game over!!
 			// Set defeat active mode to true so that attack button doesn't do anything
 			game.defeatActiveMode = true;
+			game.initializeLoseMusic();
 			alert("You lost the game; you need to work on your Jedi Master skills!");
-			// Right here, you need to set something that disallows another enemy select action
-
 
 		} else if (your.healthPoints < 1 && enemy.healthPoints < 1) {
 			// Your health and enemy's health when below 0. You both died, but one character died more than the other...
