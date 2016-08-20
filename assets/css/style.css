@@ -1,7 +1,22 @@
+/**
+ * Program: style.css
+ * Created: 08/19/2016 by Matt Holland
+ * Located: desktop/bootcamp/homework/week-4-game/assets/css/style.css
+ * Purpose: Provide styling instructions for 4th assignment - Star Wars RPG
+ */
+
+/* Apply Google font to entire body */
+body {
+	font-family: 'Fjalla One', sans-serif;
+}
+
+/* Main game heading styles */
 .jumbotron {
+	font-family: 'Bungee', cursive;
 	margin-bottom: 5px;
-	background-color: #000;
-	color: #fff;
+	background: transparent;
+	/* Main heading color */
+	color: #ad7d37;
 }
 
 .text-center {
@@ -33,13 +48,21 @@
 }
 
 section {
-	background-color: #4aaaa5;
+	/*background-color: #4aaaa5;*/
+	background: transparent;
 }
 
+/* Main character display list for 1st page load */
 div #display-characters {
 	margin-top: 8%;
 }
 
+/* Main battle and attack section headings */
+h3 {
+	color: #fff;
+}
+
+/* ul will contain every display of character images */
 ul {
 	padding: 0;
 }
@@ -57,12 +80,24 @@ li {
 	padding: 0 30px;
 }
 
+/* Style label for character's name label */
 p.character-label {
-	margin: 0;
+	font-family: 'Orbitron', sans-serif;
+	background-color: gray;
+    border-radius: 30px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 4px;
+    padding: 0 2px;
 }
 
+/* Style label for character's health rating */
 p.character-health {
+	font-family: 'Ravi Prakash', cursive;
 	margin: 0;
+	color: #fff;
+	font-weight: 900;
+	font-size: 25px;
 }
 
 /* This is the "DEFEATED" label created on left panel dynamically after character is defeated */
@@ -71,21 +106,12 @@ p.character-health {
 	font-weight: bold;
 }
 
-/* Note: when your characters become assigned, do this to the <li> to make it have a border etc, if you decide it looks good:
-   Or you may want to just change the blue to red, gray etc
-li {
-	padding: 0 10px;
-	border-radius: 15px;
-	background-color: #eee; /* or whatever *
-}
-*/
-
+/* Apply character image background colors etc */
 img {
 	height: 125px;
 	width: auto;
 	padding: 8px 8px;
 	border-radius: 14px;
 	margin: 0 4px;
-	/*background-color: #008cba;*/
 	cursor: pointer;
 }

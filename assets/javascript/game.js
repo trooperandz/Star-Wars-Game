@@ -12,7 +12,7 @@ var game = {
 
 		{
 			name: "Jabba The Hut",
-			visual: "assets/images/jabba.jpg",
+			visual: "assets/images/characters/jabba.jpg",
 			healthPoints: 180,
 			attackPower: 10,
 			counterAttackPower: 7
@@ -20,7 +20,7 @@ var game = {
 
 		{
 			name: "Yoda",
-			visual: "assets/images/yoda.jpg",
+			visual: "assets/images/characters/yoda.jpg",
 			healthPoints: 500,
 			attackPower: 25,
 			counterAttackPower: 35
@@ -28,7 +28,7 @@ var game = {
 
 		{
 			name: "Boba Fett",
-			visual: "assets/images/boba.jpg",
+			visual: "assets/images/characters/boba.jpg",
 			healthPoints: 200,
 			attackPower: 12,
 			counterAttackPower: 10
@@ -36,7 +36,7 @@ var game = {
 
 		{
 			name: "Darth Maul",
-			visual: "assets/images/darth-maul.jpg",
+			visual: "assets/images/characters/darth-maul.jpg",
 			healthPoints: 250,
 			attackPower: 9,
 			counterAttackPower: 10
@@ -44,7 +44,7 @@ var game = {
 
 		{
 			name: "General Grievous",
-			visual: "assets/images/grievous.jpg",
+			visual: "assets/images/characters/grievous.jpg",
 			healthPoints: 300,
 			attackPower: 25,
 			counterAttackPower: 20
@@ -52,7 +52,7 @@ var game = {
 
 		{
 			name: "Maz Kanata",
-			visual: "assets/images/maz.jpg",
+			visual: "assets/images/characters/maz.jpg",
 			healthPoints: 170,
 			attackPower: 11,
 			counterAttackPower: 14
@@ -60,7 +60,7 @@ var game = {
 
 		{
 			name: "Darth Vader",
-			visual: "assets/images/vader.jpg",
+			visual: "assets/images/characters/vader.jpg",
 			healthPoints: 400,
 			attackPower: 30,
 			counterAttackPower: 24
@@ -68,7 +68,7 @@ var game = {
 
 		{
 			name: "Luke Skywalker",
-			visual: "assets/images/luke.jpg",
+			visual: "assets/images/characters/luke.jpg",
 			healthPoints: 500,
 			attackPower: 36,
 			counterAttackPower: 30
@@ -165,18 +165,18 @@ var game = {
 	},
 	
 	// Function to create section heading
-	// Note: dataObj contains: parent_id, h4_text
+	// Note: dataObj contains: parent_id, h3_text
 	createSectionHeading: function(dataObj) {
 		// Add new content to the your-character div.  First, get the parent element.
 		var parent = document.getElementById(dataObj.parent_id);
 		// First, add Your Character section
-		var h4 = document.createElement("h4");
+		var h3 = document.createElement("h3");
 		// Create the text for the <h4>
-		var text = document.createTextNode(dataObj.h4_text);
+		var text = document.createTextNode(dataObj.h3_text);
 		// Append the <h4> to the div
-		parent.appendChild(h4);
+		parent.appendChild(h3);
 		// Put the text into the <h4>
-		h4.appendChild(text);
+		h3.appendChild(text);
 	},
 
 	// Function to dynamically create character list for each section
@@ -285,13 +285,30 @@ var game = {
 
 /* first program load list example */
 $(document).ready(function() {
+
+	// Include the backstretch plugin to make the background image fully responsive and rotating
+	$.backstretch(
+		[
+  	      "assets/images/backgrounds/battle.jpg",
+  	      "assets/images/backgrounds/darth.jpg",
+  	  	  "assets/images/backgrounds/ice.jpg",
+  	  	  "assets/images/backgrounds/troopers.jpg",
+  	  	  "assets/images/backgrounds/destroyer.jpg",
+  	  	  "assets/images/backgrounds/fallen.jpg"
+  		], 
+
+  		{
+  			duration: 10000, 
+  			fade: 1400
+  		}
+  	);
 	// Generate html attack audio tags
 	game.createAudioAttackTags();
 
 	// Create section heading for beginning gameplay
 	var dataObj = { 
 		parent_id: "display-characters", 
-		h4_text:   "Choose Your Character To Begin..." 
+		h3_text:   "Choose Your Character To Begin..." 
 	};
 	game.createSectionHeading(dataObj);
 
@@ -341,7 +358,7 @@ $(document).ready(function() {
 		// Create section heading for your character selection
 		var dataObj = { 
 			parent_id: "display-protagonist", 
-			h4_text:   "You Are Fighting As:" 
+			h3_text:   "You Are Fighting As:" 
 		};
 		game.createSectionHeading(dataObj);
 	
@@ -362,7 +379,7 @@ $(document).ready(function() {
 		// Create section heading for enemy display
 		var dataObj = { 
 			parent_id: "display-enemies", 
-			h4_text:   "Select An Opponent To Attack" 
+			h3_text:   "Select An Opponent To Attack" 
 		};
 		game.createSectionHeading(dataObj);
 	
@@ -434,7 +451,7 @@ $(document).ready(function() {
 			// Create section heading for enemy display
 			var dataObj = { 
 				parent_id: "display-defender", 
-				h4_text:   "Your Opponent Is:" 
+				h3_text:   "Your Opponent Is:" 
 			};
 			game.createSectionHeading(dataObj);
 		
@@ -455,7 +472,7 @@ $(document).ready(function() {
 			// Create section heading for battleground display
 			var dataObj = { 
 				parent_id: "battle-ground", 
-				h4_text:   "Battleground" 
+				h3_text:   "Battleground" 
 			};
 			game.createSectionHeading(dataObj);
 		
@@ -491,62 +508,98 @@ $(document).ready(function() {
 			ul.removeChild(li);
 
 			// Next, replace defender and battle enemy character array elements with new enemy character selected
-			game.log('yourEnemyArray before splice: ' + game.yourEnemyArray);
-			game.log('currentBattleArray before splice: ' + game.currentBattleArray);
 			game.yourEnemyArray.splice(0, 1, pushObj);
 			game.currentBattleArray.splice(1, 1, pushObj);
-			game.log('yourEnemyArray after splice: ' + game.yourEnemyArray);
-			game.log('currentBattleArray after splice: ' + game.currentBattleArray);
 
-			// Empty the #display-defender content to make room for new content
-			var parent = document.getElementById("display-defender");
-			parent.innerHTML = "";
+			// Note: If it is the last battle, remove #display-enemies div, #left-divide-section, and #display-defender divs.
+			// Only want to show your character and the battleground, so that display does not get messed up
+			// Last battle can be identified by enemiesDefeatedCount
+			if(game.enemiesDefeatedCount == (game.enemiesAvailableArray.length - 1)) {
+				var parent = document.getElementById("display-enemies");
+				parent.innerHTML = "";
 
-			// Empty the #battle-ground content to make room for new content
-			var parent = document.getElementById("battle-ground");
-			parent.innerHTML = "";
+				var parent = document.getElementById("left-divide-section");
+				parent.innerHTML = "";
 
-			// Now update left enemy area display with new content
-			var dataObj = { 
-				parent_id: "display-defender", 
-				h4_text:   "Your Opponent Is:" 
-			};
-			game.createSectionHeading(dataObj);
-		
-			// Create enemy display list from enemy array
-			var dataObj = {
-				array: game.yourEnemyArray,
-				parent_id: "display-defender"	  ,
-				ul_id: 	   "defender-character"	  ,
-				li_class:  "li-defender-character",
-				li_id:     "defender"			  ,
-				img_class: "bg-black"			  ,
-				p1_class:  "character-label"	  ,
-				p2_class:  "character-health"     ,
-				p2_id:     "character-health"
+				var parent = document.getElementById("display-defender");
+				parent.innerHTML = "";
+
+				// Empty the #battle-ground content to make room for new content
+				var parent = document.getElementById("battle-ground");
+				parent.innerHTML = "";
+
+				// Now update the battle ground to "Last Battle!"
+				var dataObj = { 
+					parent_id: "battle-ground", 
+					h3_text:   "Last Battle!" 
+				};
+				game.createSectionHeading(dataObj);
+			
+				// Now create character display list for battleground area
+				var dataObj = {
+					array: game.currentBattleArray	  ,
+					parent_id: "battle-ground"	  	  ,
+					ul_id: 	   "battle-character"	  ,
+					li_class:  "li-battle-character"  ,
+					li_id:     "battle"			      ,
+					img_class: "bg-blue"			  ,
+					p1_class:  "character-label"	  ,
+					p2_class:  "character-health"     ,
+					p2_id:     "character-health"
+				}
+				game.createCharacterList(dataObj);
+			} else {
+
+				// Empty the #display-defender content to make room for new content
+				var parent = document.getElementById("display-defender");
+				parent.innerHTML = "";
+	
+				// Empty the #battle-ground content to make room for new content
+				var parent = document.getElementById("battle-ground");
+				parent.innerHTML = "";
+	
+				// Now update left enemy area display with new content
+				var dataObj = { 
+					parent_id: "display-defender", 
+					h3_text:   "Your Opponent Is:" 
+				};
+				game.createSectionHeading(dataObj);
+			
+				// Create enemy display list from enemy array
+				var dataObj = {
+					array: game.yourEnemyArray,
+					parent_id: "display-defender"	  ,
+					ul_id: 	   "defender-character"	  ,
+					li_class:  "li-defender-character",
+					li_id:     "defender"			  ,
+					img_class: "bg-black"			  ,
+					p1_class:  "character-label"	  ,
+					p2_class:  "character-health"     ,
+					p2_id:     "character-health"
+				}
+				game.createCharacterList(dataObj);
+	
+				// Now update battle display heading
+				var dataObj = { 
+					parent_id: "battle-ground", 
+					h3_text:   "Battleground" 
+				};
+				game.createSectionHeading(dataObj);
+			
+				// Now create character display list for battleground area
+				var dataObj = {
+					array: game.currentBattleArray	  ,
+					parent_id: "battle-ground"	  	  ,
+					ul_id: 	   "battle-character"	  ,
+					li_class:  "li-battle-character"  ,
+					li_id:     "battle"			      ,
+					img_class: "bg-blue"			  ,
+					p1_class:  "character-label"	  ,
+					p2_class:  "character-health"     ,
+					p2_id:     "character-health"
+				}
+				game.createCharacterList(dataObj);
 			}
-			game.createCharacterList(dataObj);
-
-			// Now update battle display heading
-			var dataObj = { 
-				parent_id: "battle-ground", 
-				h4_text:   "Battleground" 
-			};
-			game.createSectionHeading(dataObj);
-		
-			// Now create character display list for battleground area
-			var dataObj = {
-				array: game.currentBattleArray	  ,
-				parent_id: "battle-ground"	  	  ,
-				ul_id: 	   "battle-character"	  ,
-				li_class:  "li-battle-character"  ,
-				li_id:     "battle"			      ,
-				img_class: "bg-blue"			  ,
-				p1_class:  "character-label"	  ,
-				p2_class:  "character-health"     ,
-				p2_id:     "character-health"
-			}
-			game.createCharacterList(dataObj);
 
 			// Now change the background color of the second li-battle-character to match enemy color. Will always be in 2nd position (1)
 			var li = document.getElementsByClassName("li-battle-character")[1];
@@ -602,9 +655,6 @@ $(document).ready(function() {
 		game.yourTempAttackPower +=  your.attackPower;
 		game.log("Your temp attack power after attack: " + game.yourTempAttackPower);
 
-		// Now make the sword attack noise
-
-
 		// Now update your health inside of the left character display area
 		var dataObj = { parentId: "display-protagonist", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
 		game.updateHealthPoints(dataObj);
@@ -613,59 +663,67 @@ $(document).ready(function() {
 		var dataObj = { parentId: "battle-ground", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
 		game.updateHealthPoints(dataObj);
 
-		// Now update enemy's health inside of the left character display area
-		var dataObj = { parentId: "display-defender", updateElement: "p", elementIndex: 1, healthPoints: enemy.healthPoints }
-		game.updateHealthPoints(dataObj);
+		// Now update enemy's health inside of the left character display area, only if it is not the last battle (div disappears at that point)
+		if(game.enemiesDefeatedCount != game.enemiesAvailableArray.length - 1) {
+			var dataObj = { parentId: "display-defender", updateElement: "p", elementIndex: 1, healthPoints: enemy.healthPoints }
+			game.updateHealthPoints(dataObj);
+		}
 
 		// Now update the enemy's health inside of the battle area
 		var dataObj = { parentId: "battle-ground", updateElement: "p", elementIndex: 3, healthPoints: enemy.healthPoints }
 		game.updateHealthPoints(dataObj);
 
 		// Now check health values, to see if anybody was defeated, or if fight needs to continue
-		if(your.healthPoints > 0 && enemy.healthPoints < 1) {
-			alert("Nice way to go for the juggular; you won the fight!\nPlease select another enemy.");
+		if(your.healthPoints > 0 && enemy.healthPoints <= 0) {
+			// Increment the enemies defeated count by 1. Once it reaches same value as enemies available array, game is over.
+			game.enemiesDefeatedCount += 1;
+
+			// Only tell the player to select another enemy if he/she has not won the game yet
+			var msg = (game.enemiesDefeatedCount == game.enemiesAvailableArray.length) ? "" : "Please select another enemy.";
+			alert("Nice way to go for the juggular; you won the fight!\n" + msg);
 			// You won the fight.  First, set enemy already defeated val to true. Will dictate handling of next enemy selection
 			game.enemyAlreadyDefeated = true;
 
 			// Set defeat active mode to true so that attack button doesn't do anything
 			game.defeatActiveMode = true;
-
-			// Next, increment the enemies defeated count by 1. Once it reaches same value as enemies available array, game is over.
-			game.enemiesDefeatedCount += 1;
 			
 			// Now remove the enemies from the screen. Start with the battleground area enemy
 			var ul = document.getElementById("battle-character");
 			var li = ul.getElementsByTagName('li')[1]; // Enemy will always be 2nd
 			ul.removeChild(li);
 			// Alse remove enemy img and enemy label from left side area and replace with <p class="side-defeat-label"> DEFEATED! </p>
-			var li = document.getElementsByClassName("li-defender-character")[0]; // Will always be 1st, as is the only item in container
-			var p1 = li.getElementsByTagName('p')[0];
-			var text = document.createTextNode("DEFEATED!");
-			var img = li.getElementsByTagName('img')[0];
-			var p2 = li.getElementsByTagName('p')[1];
-			p1.setAttribute("class", "side-defeat-label");
-			p1.innerHTML = "";
-			p1.appendChild(text);
-			li.removeChild(img);
-			li.removeChild(p2);
-
+			// Note: ONLY do this if it is not the last battle (otherwise, content does not exist and an error will trigger), preventing game win
+			if(game.enemiesDefeatedCount < (game.enemiesAvailableArray - 1)) {
+				var li = document.getElementsByClassName("li-defender-character")[0]; // Will always be 1st, as is the only item in container
+				var p1 = li.getElementsByTagName('p')[0];
+				var text = document.createTextNode("DEFEATED!");
+				var img = li.getElementsByTagName('img')[0];
+				var p2 = li.getElementsByTagName('p')[1];
+				p1.setAttribute("class", "side-defeat-label");
+				p1.innerHTML = "";
+				p1.appendChild(text);
+				li.removeChild(img);
+				li.removeChild(p2);
+			}
 			// Continue fighting by selecting another enemy (only if there are enemies left in the enemiesAvailableArray)
 			if(game.enemiesDefeatedCount == game.enemiesAvailableArray.length) {
 				// No more enemies left, so you won the game! Congrats!
+
+				// First, remove page content and 
 				game.log("Game is over!");
 				game.initializeWinMusic();
 				alert("Congratulations, you won the game! You are Jedi Master!");
 				return false;
 			}
 
-		} else if (your.healthPoints < 1 && enemy.healthPoints > 0) {
+		} else if (your.healthPoints <= 0 && enemy.healthPoints > 0) {
 			// You lost the fight.  Game over!!
 			// Set defeat active mode to true so that attack button doesn't do anything
 			game.defeatActiveMode = true;
 			game.initializeLoseMusic();
 			alert("You lost the game; you need to work on your Jedi Master skills!");
 
-		} else if (your.healthPoints < 1 && enemy.healthPoints < 1) {
+		} else if (your.healthPoints <= 0 && enemy.healthPoints <= 0) {
 			// Your health and enemy's health when below 0. You both died, but one character died more than the other...
 			// Set defeat active mode to true so that attack button doesn't do anything
 			game.defeatActiveMode = true;

@@ -1,3 +1,9 @@
+<!--
+ * Program: index.html
+ * Created: 08/19/2016 by Matt Holland
+ * Located: desktop/bootcamp/homework/week-4-game/index.html
+ * Purpose: Provide html structure for 4th assignment - Star Wars RPG
+-->
 <!DOCTYPE html>
 <html>
 	<head>
@@ -6,34 +12,20 @@
 		<!-- Include meta viewport tag to give browser instructions on how to control page dimensions/scaling -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<!-- Latest Bootstrap compiled and minified CSS
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+		<!-- Latest Bootstrap compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
 		<!-- use locally if no internet cxn -->
-		<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		<!--<link rel="stylesheet" href="assets/css/bootstrap.min.css">-->
 
 		<!-- Customized stylesheet -->
 		<link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
-		<!-- Google font -->
-		<link href="https://fonts.googleapis.com/css?family=Cinzel" rel="stylesheet">
+		<!-- Google fonts -->
+		<link href="https://fonts.googleapis.com/css?family=Anton|Bungee|Fjalla+One|Orbitron|Ravi+Prakash|Russo+One" rel="stylesheet">
 	</head>
 
 	<body>
-		<!-- Game play should start with the modal. Remove the okay button, and hide manually on first keyup event -->
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
-		  	<div class="modal-dialog" role="document">
-		    	<div class="modal-content">
-		      		<div class="modal-header">
-		        		<h4 class="modal-title text-center">Let The Force Be With You!</h4>
-		      		</div>
-		      		<div class="modal-body">
-		        		<p class="text-center">Press Any Key To Begin! &hellip;</p>
-		      		</div>
-		    	</div><!-- /.modal-content -->
-		  	</div><!-- /.modal-dialog -->
-		</div><!-- #myModal -->
-
 		<!-- This modal is for display when the game is over. Give the user the option to start another one, or close the window tab-->
 		<div class="modal fade" id="game-over-modal" tabindex="-1" role="dialog">
 		  	<div class="modal-dialog" role="document">
@@ -66,6 +58,7 @@
   			</div>
 		</div>
 
+		<!-- Section for main game play.  Note: Content is added and removed via js -->
 		<section class="container-fluid">
 			<div class="row">
 				<div class="col-sm-12 col-md-12 col-lg-12 text-center" id="display-characters"></div> 
@@ -86,20 +79,20 @@
 			</div>
 		</section> <!-- .container-fluid -->
 
-		<!-- jQuery library (necessary for Bootstrap & other JavaScript plugins)
-   		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>-->
+		<!-- jQuery library (necessary for Bootstrap & other JavaScript plugins) -->
+   		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
    		<!-- use locally if no internet cxn -->
-   		<script src="assets/javascript/jquery.js"></script>
+   		<!--<script src="assets/javascript/jquery.js"></script>-->
 
    		<!-- Backstretch js plugin, for page background -->
    		<script src="assets/javascript/backstretch_plugin.min.js"></script>
 
-		<!-- Latest compiled and minified JavaScript
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
+		<!-- Latest compiled and minified Bootstrap JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 		<!-- use locally if no internet cxn -->
-		<script src="assets/javascript/bootstrap.min.js"></script>
+		<!--<script src="assets/javascript/bootstrap.min.js"></script>-->
 
 		<!-- Custom js game code -->
 		<script src="assets/javascript/game.js"></script>
