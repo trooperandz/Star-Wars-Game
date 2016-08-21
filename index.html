@@ -41,15 +41,20 @@
 		  	</div><!-- /.modal-dialog -->
 		</div><!-- #game-over-modal -->
 
-		<!-- Audio for program background music on page load -->
+		<!-- Audio for program background music. Initialize via autoplay attribute on page load -->
 		<audio src="assets/sounds/bg_music/main_theme.mp3" id="main-theme" autoplay="autoplay">Your browser does not support the audio.</audio>
+		<!-- Audio for battle background music; starts after initial enemy is selected. Loop it for battle play -->
+		<audio src="assets/sounds/bg_music/battle_theme.mp3" id="battle-theme" loop="loop">Your browser does not support the audio.</audio>
 		<!-- Audio for game win -->
 		<audio src="assets/sounds/bg_music/win_theme.mp3" id="win-theme" loop="loop">Your browser does not support the audio.</audio>
 		<!-- Audio for game loss -->
-		<audio src="assets/sounds/bg_music/lose_theme.mp3" id="lose-theme">Your browser does not support the audio.</audio>
+		<audio src="assets/sounds/bg_music/lose_theme.mp3" id="lose-theme" loop="loop">Your browser does not support the audio.</audio>
 
 		<!-- Audio div for battle attack noises, to be generated and initialized dynamically via js -->
 		<div id="attack-noises"></div>
+
+		<!-- Audio div for miscellaneous game sound effects, generated and initialized via js -->
+		<div id="misc-noises"></div>
 
 		<!-- Big Page Heading -->
 		<div class="jumbotron">

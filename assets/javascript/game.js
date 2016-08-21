@@ -111,8 +111,26 @@ var game = {
 	// Value will be incremented in main program code, after an enemy has been defeated
 	enemiesDefeatedCount: 0,
 
-	// Store all attack noises in an array of objects, with file source and <audio> tag id's so that html can be generated dynamically
-	attackNoiseArray: [
+	// Store all miscellaneous game noises (button clicks, character selection, etc) in an array as objects so html can be generated dynamically
+	miscSoundArray: [
+		{
+			src: "assets/sounds/misc_sounds/button_click.mp3",
+			audioId: "button-click"
+		},
+
+		{
+			src: "assets/sounds/misc_sounds/character_select.mp3",
+			audioId: "character-select"
+		},
+
+		{
+			src: "assets/sounds/misc_sounds/enemy_select.mp3",
+			audioId: "enemy-select"
+		}
+	],
+
+	// Store all attack noises in an array as objects so html can be generated dynamically
+	attackSoundArray: [
 
 		{
 			src: "assets/sounds/attack_sounds/clash1.wav",
@@ -150,15 +168,16 @@ var game = {
 		}
 	],
 
-	createAudioAttackTags: function() {
+	// Generate <audio> html tags dynamically for game sound effects (attack sounds, character selecion, button clicks, etc)
+	createAudioTags: function(id, array) {
 		// Grab parent div
-		var div = document.getElementById("attack-noises");
-		// Generate all html audio tags for attack noises, from attackNoiseArray
-		this.attackNoiseArray.forEach(function(object, i, array) {
+		var div = document.getElementById(id);
+		// Generate all html audio tags for attack noises, from sound array
+		array.forEach(function(object, i, arr) {
 			// Create <audio> tag
 			var audio = document.createElement("audio");
-			audio.setAttribute("src", array[i].src);
-			audio.setAttribute("id", array[i].audioId);
+			audio.setAttribute("src", arr[i].src);
+			audio.setAttribute("id", arr[i].audioId);
 			// Append audio tag to div
 			div.appendChild(audio);
 		});
@@ -238,43 +257,43 @@ var game = {
 		});
 	},
 
+	// Method to initialize all bg music, based on game phase
+	initializeBgMusic: function(id) {
+		// First, make sure the main bg music is paused
+		var mainTheme = document.getElementById("main-theme");
+		var playMusic = document.getElementById(id);
+		mainTheme.pause();
+		// Play the requested sound file
+		playMusic.play();
+	},
+
+	// Method to initialize main gameplay sounds (clicks, character select, etc)
+	initializeMiscSound: function(id) {
+		// Get the audio tag
+		var audio = document.getElementById(id);
+		// Now issue instruction to play the audio file
+		audio.play();
+	},
+
 	// When attack initiates, create random clash noise from array of audio files
 	initializeAttackSound: function() {
 		// Pick a random index from the attackNoiseIdArray
-		var index = Math.floor(Math.random() * this.attackNoiseArray.length);
+		var index = Math.floor(Math.random() * this.attackSoundArray.length);
 		console.log("createBattleSounds index generated: " + index);
-		// Now create an audio tag and place inside of div#attack-sounds
-		var id = this.attackNoiseArray[index].audioId;
+		// Now create id var to target audio tag
+		var id = this.attackSoundArray[index].audioId;
 		console.log("attack sound id chosen: " + id);
 		var audio = document.getElementById(id);
 		// Now issue instruction to play the audio file
 		audio.play();
 	},
 
-	// Function to update character health point values on the screen
+	// Method to update character health point values on the screen
 	// Note: dataObj contains the following: 'parentId', 'updateElement', 'elementIndex', 'healthPoints'
 	updateHealthPoints: function(dataObj) {
 		var parent = document.getElementById(dataObj.parentId);
 		var p = parent.getElementsByTagName(dataObj.updateElement)[dataObj.elementIndex];
 		p.innerHTML = dataObj.healthPoints;
-	},
-
-	// Play win music if character wins game
-	initializeWinMusic: function() {
-		// First, make sure the bg music is off
-		var bg_music = document.getElementById("main-theme");
-		var win_music = document.getElementById("win-theme");
-		bg_music.pause();
-		win_music.play();
-	},
-
-	// Play lose music if character loses game
-	initializeLoseMusic: function() {
-		// First, make sure the bg music is off
-		var bg_music = document.getElementById("main-theme");
-		var lose_music = document.getElementById("lose-theme");
-		bg_music.pause();
-		lose_music.play();
 	},
 
 	// Function to console.log items
@@ -289,12 +308,13 @@ $(document).ready(function() {
 	// Include the backstretch plugin to make the background image fully responsive and rotating
 	$.backstretch(
 		[
-  	      "assets/images/backgrounds/battle.jpg",
-  	      "assets/images/backgrounds/darth.jpg",
-  	  	  "assets/images/backgrounds/ice.jpg",
-  	  	  "assets/images/backgrounds/troopers.jpg",
-  	  	  "assets/images/backgrounds/destroyer.jpg",
-  	  	  "assets/images/backgrounds/fallen.jpg"
+  	      "assets/images/backgrounds/ship.jpg"     ,
+  	      "assets/images/backgrounds/darth.jpg"    ,
+  	  	  "assets/images/backgrounds/space.jpg"    ,
+  	  	  "assets/images/backgrounds/troopers.jpg" ,
+  	  	  "assets/images/backgrounds/woods.jpg"    ,
+  	  	  "assets/images/backgrounds/desert.jpg"   ,
+  	  	  "assets/images/backgrounds/space2.jpg"
   		], 
 
   		{
@@ -302,9 +322,13 @@ $(document).ready(function() {
   			fade: 1400
   		}
   	);
-	// Generate html attack audio tags
-	game.createAudioAttackTags();
 
+  	// Generate html attack audio tags
+	game.createAudioTags("attack-noises", game.attackSoundArray);
+
+	// Generate html misc sound audio tags
+	game.createAudioTags("misc-noises", game.miscSoundArray);
+	
 	// Create section heading for beginning gameplay
 	var dataObj = { 
 		parent_id: "display-characters", 
@@ -329,6 +353,9 @@ $(document).ready(function() {
 	// When the user clicks a character, assign that character to them, and assign everyone else as enemies
 	$('div#display-characters li').on('click', function(event) {
 	//$(document.body).on('click', 'div#display-characters li', function(event) {
+		// Initialize character select sound
+		game.initializeMiscSound("character-select");
+
 		// Set the character number based on the <li> id. Remove the words from the index number with slice()
 		var index = $(this).attr('id').slice(-1);
 		game.log('character index chosen: ' + index);
@@ -412,9 +439,11 @@ $(document).ready(function() {
 
 		// If haven't attacked anybody yet, and thus no enemy has been defeated, append new content etc
 		if(!game.attackActiveMode && !game.enemyAlreadyDefeated) {
-			// Pause the background music when attack mode starts
-			var bg_music = document.getElementById("main-theme");
-			bg_music.pause();
+			// Initialize enemy select sound
+			game.initializeMiscSound("enemy-select");
+
+			// Pause the background music and initialize battle music when user selects first enemy
+			game.initializeBgMusic("battle-theme");
 
 			// Set defeat active mode to false so that the attack button may be clicked after this code runs
 			game.defeatActiveMode = false;
@@ -499,6 +528,9 @@ $(document).ready(function() {
 			game.attackActiveMode = true;
 
 		} else if (game.attackActiveMode && game.enemyAlreadyDefeated) {
+			// Initialize enemy select sound
+			game.initializeMiscSound("enemy-select");
+			
 			// Set defeat active mode to false so that the attack button may be clicked after this code runs
 			game.defeatActiveMode = false;
 
@@ -711,7 +743,7 @@ $(document).ready(function() {
 
 				// First, remove page content and 
 				game.log("Game is over!");
-				game.initializeWinMusic();
+				game.initializeBgMusic("win-theme");
 				alert("Congratulations, you won the game! You are Jedi Master!");
 				return false;
 			}
@@ -720,7 +752,7 @@ $(document).ready(function() {
 			// You lost the fight.  Game over!!
 			// Set defeat active mode to true so that attack button doesn't do anything
 			game.defeatActiveMode = true;
-			game.initializeLoseMusic();
+			game.initializeBgMusic("lose-theme");
 			alert("You lost the game; you need to work on your Jedi Master skills!");
 
 		} else if (your.healthPoints <= 0 && enemy.healthPoints <= 0) {
