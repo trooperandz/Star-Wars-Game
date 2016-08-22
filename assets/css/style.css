@@ -27,6 +27,7 @@ body {
 /* Green text for attack power and damage text display */
 .text-green {
 	color: green;
+	font-weight: bold;
 }
 
 /* Image background color class */
@@ -60,7 +61,15 @@ section {
 
 /* Main character display list for 1st page load */
 div #display-characters {
-	margin-top: 8%;
+	margin-top: 7%;
+}
+
+div #display-enemies h3 {
+	margin-top: 3px;
+}
+
+div #display-protagonist h3 {
+	margin-top: 3px;
 }
 
 /* Main battle and attack section headings */
