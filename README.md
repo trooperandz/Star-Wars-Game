@@ -55,10 +55,10 @@
 
  * The project features the backstretch.js plugin, for alternating background images.
 
- * The Google fonts were used for program text.
+ * Google fonts were used for program text.
 
  * The program features background music, and music that plays for wins and losses!
 
- * The program features random attack noises for each attack.
+ * The program features miscellaneous sounds such as random attack sound effects and character selection/button click effects.
 
- * The program features eight characters
+ * The program features eight characters to choose from

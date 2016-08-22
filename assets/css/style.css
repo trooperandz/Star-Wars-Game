@@ -19,8 +19,14 @@ body {
 	color: #ad7d37;
 }
 
+/* Center align all text */
 .text-center {
 	text-align: center;
+}
+
+/* Green text for attack power and damage text display */
+.text-green {
+	color: green;
 }
 
 /* Image background color class */

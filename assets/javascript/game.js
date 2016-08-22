@@ -259,10 +259,12 @@ var game = {
 
 	// Method to initialize all bg music, based on game phase
 	initializeBgMusic: function(id) {
-		// First, make sure the main bg music is paused
+		// First, make sure the main bg music and/or battle music is paused
 		var mainTheme = document.getElementById("main-theme");
+		var battleTheme = document.getElementById("battle-theme");
 		var playMusic = document.getElementById(id);
 		mainTheme.pause();
+		battleTheme.pause();
 		// Play the requested sound file
 		playMusic.play();
 	},
@@ -318,7 +320,7 @@ $(document).ready(function() {
   		], 
 
   		{
-  			duration: 10000, 
+  			duration: 14000, 
   			fade: 1400
   		}
   	);
@@ -359,15 +361,21 @@ $(document).ready(function() {
 		// Set the character number based on the <li> id. Remove the words from the index number with slice()
 		var index = $(this).attr('id').slice(-1);
 		game.log('character index chosen: ' + index);
+
 		// Assign your character to your array by accessing the index in the master array
 		// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
 		game.log('game.masterCharacterArray[index]: ' + game.masterCharacterArray[index]);
 		var pushObj = game.masterCharacterArray[index];
 		game.log('typeof pushObj: ' + typeof pushObj);
+
 		// Push the character chosen onto your character array, and onto the current battle array (will be object)
 		game.yourCharacterArray.push(pushObj);
 		game.log('yourCharacterArray : ' + game.yourCharacterArray);
 		game.currentBattleArray.push(pushObj);
+
+		// Set character initial temp attack power on first enemy selection. 
+		// Will increment inside of attack handler each time the attack button is clicked. Note: DO NOT increment attackPower
+		game.yourTempAttackPower = game.yourCharacterArray[0].attackPower;
 
 		// Remove the character selected from the master array, so that only the enemies remain
 		game.masterCharacterArray.splice(index, 1);
@@ -375,7 +383,7 @@ $(document).ready(function() {
 
 		// Rename the resulting array to enemiesAvailableArray for visual purposes
 		// Note: this will not create a copy of the original array; it will point
-		// to the same location in memory.  Any alterations will also affect the master array
+		// to the same location in memory.  Any alterations will also affect the original master array
 		game.enemiesAvailableArray = game.masterCharacterArray;
 
 		// Remove the original character list from the DOM, before adding new content.
@@ -452,19 +460,20 @@ $(document).ready(function() {
 			game.yourEnemyArray.push(pushObj);
 			game.currentBattleArray.push(pushObj);
 			
-			// Remove the character selected from the enemies available list, by clearing via innerHTML. Could not get removeChild to work.
+			// Remove the character selected from the enemies available list
 			// Note: there will always only be one of these
 			var ul = document.getElementsByClassName("enemy-character")[0];
 			var li = document.getElementById("enemy" + index);
 			ul.removeChild(li);
 	
-			// Insert content into the left-divide-section
+			// Insert content into the left-divide-section. Need to put inside of function
 			var parent = document.getElementById("left-divide-section");
 			var p = document.createElement('p');
-			p.setAttribute("class", "divide-label");
-			var text = document.createTextNode("VS");
+			p.setAttribute("class", "text-green");
+			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
 			parent.appendChild(p);
-			p.appendChild(text);
+			//p.appendChild(text);
+			p.innerHTML = "Your attack power: " + game.yourTempAttackPower;
 	
 			// Insert content into the attack section (button etc)
 			var parent = document.getElementById("attack-section");
@@ -530,7 +539,7 @@ $(document).ready(function() {
 		} else if (game.attackActiveMode && game.enemyAlreadyDefeated) {
 			// Initialize enemy select sound
 			game.initializeMiscSound("enemy-select");
-			
+
 			// Set defeat active mode to false so that the attack button may be clicked after this code runs
 			game.defeatActiveMode = false;
 
@@ -667,9 +676,25 @@ $(document).ready(function() {
 
 		// Set your character's temp attack power == initial attack power for very first attack only (Note: will increment up as fights progress)
 		// Note: your enemy's attack power will not increment during gameplay; yourTempAttackPower is just a copy of attackPower
+		// PUT attack power inital append here.  later on, will be innterHTML instruction instead
 		if(game.initialAttackClick) {
-			game.yourTempAttackPower = your.attackPower;
-			game.log("Your initial temp attack power: " + game.yourTempAttackPower);
+			// Now create the battle-feedback text for damage display. Need to put inside of function.
+			var parent = document.getElementById("battle-feedback");
+			var p = document.createElement("p");
+			p.setAttribute("class", "text-green");
+			//p.setAttribute("id", "your-attack-power");
+			parent.appendChild(p);
+			p.innerHTML = "You attacked " + enemy.name + " for " + game.yourTempAttackPower + " damage. " + enemy.name + " retaliated for " + enemy.counterAttackPower + " damage.";
+		} else {
+			// Update battle feedback. <p> will always be index position 0
+			var parent = document.getElementById("battle-feedback");
+			var p = parent.getElementsByTagName("p")[0];
+			p.innerHTML = "You attacked " + enemy.name + " for " + game.yourTempAttackPower + " damage. " + enemy.name + " retaliated for " + enemy.counterAttackPower + " damage.";
+		
+			// Update attack power stats, before yourTempAttackPower is incremented (would be too high if not)
+			var parent = document.getElementById("left-divide-section");
+			var p = parent.getElementsByTagName('p')[0];
+			p.innerHTML = "Your attack power: " + game.yourTempAttackPower;
 		}
 
 		game.log("Your intial health before attack: " + your.healthPoints);
