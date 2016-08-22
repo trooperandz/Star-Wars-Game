@@ -13,7 +13,7 @@ var game = {
 		{
 			name: "Jabba The Hut",
 			visual: "assets/images/characters/jabba.jpg",
-			healthPoints: 180,
+			healthPoints: 195,
 			attackPower: 10,
 			counterAttackPower: 7
 		},
@@ -21,9 +21,9 @@ var game = {
 		{
 			name: "Yoda",
 			visual: "assets/images/characters/yoda.jpg",
-			healthPoints: 500,
-			attackPower: 25,
-			counterAttackPower: 35
+			healthPoints: 235,
+			attackPower: 8,
+			counterAttackPower: 26
 		},
 
 		{
@@ -37,7 +37,7 @@ var game = {
 		{
 			name: "Darth Maul",
 			visual: "assets/images/characters/darth-maul.jpg",
-			healthPoints: 250,
+			healthPoints: 220,
 			attackPower: 9,
 			counterAttackPower: 10
 		},
@@ -45,15 +45,15 @@ var game = {
 		{
 			name: "General Grievous",
 			visual: "assets/images/characters/grievous.jpg",
-			healthPoints: 300,
-			attackPower: 25,
-			counterAttackPower: 20
+			healthPoints: 210,
+			attackPower: 11,
+			counterAttackPower: 18
 		},
 
 		{
 			name: "Maz Kanata",
 			visual: "assets/images/characters/maz.jpg",
-			healthPoints: 170,
+			healthPoints: 180,
 			attackPower: 11,
 			counterAttackPower: 14
 		},
@@ -61,16 +61,16 @@ var game = {
 		{
 			name: "Darth Vader",
 			visual: "assets/images/characters/vader.jpg",
-			healthPoints: 400,
-			attackPower: 30,
+			healthPoints: 240,
+			attackPower: 15,
 			counterAttackPower: 24
 		},
 
 		{
 			name: "Luke Skywalker",
 			visual: "assets/images/characters/luke.jpg",
-			healthPoints: 500,
-			attackPower: 36,
+			healthPoints: 195,
+			attackPower: 15,
 			counterAttackPower: 30
 		}
 	],
@@ -467,13 +467,23 @@ $(document).ready(function() {
 			ul.removeChild(li);
 	
 			// Insert content into the left-divide-section. Need to put inside of function
-			var parent = document.getElementById("left-divide-section");
+			// First start with your character stats
+			var parent = document.getElementById("attack-power-you");
 			var p = document.createElement('p');
 			p.setAttribute("class", "text-green");
 			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
 			parent.appendChild(p);
 			//p.appendChild(text);
 			p.innerHTML = "Your attack power: " + game.yourTempAttackPower;
+
+			// Now create enemy character stats
+			var parent = document.getElementById("attack-power-enemy");
+			var p = document.createElement('p');
+			p.setAttribute("class", "text-green");
+			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
+			parent.appendChild(p);
+			//p.appendChild(text);
+			p.innerHTML = "Counter attack power: " + game.yourEnemyArray[0].counterAttackPower;
 	
 			// Insert content into the attack section (button etc)
 			var parent = document.getElementById("attack-section");
@@ -559,7 +569,7 @@ $(document).ready(function() {
 				var parent = document.getElementById("display-enemies");
 				parent.innerHTML = "";
 
-				var parent = document.getElementById("left-divide-section");
+				var parent = document.getElementById("attack-power-enemy");
 				parent.innerHTML = "";
 
 				var parent = document.getElementById("display-defender");
@@ -619,6 +629,11 @@ $(document).ready(function() {
 					p2_id:     "character-health"
 				}
 				game.createCharacterList(dataObj);
+
+				// Now update enemy counter attack stats
+				var parent = document.getElementById("attack-power-enemy");
+				var p = parent.getElementsByTagName('p')[0];
+				p.innerHTML = "Counter attack power: " + game.yourEnemyArray[0].counterAttackPower;
 	
 				// Now update battle display heading
 				var dataObj = { 
@@ -691,8 +706,9 @@ $(document).ready(function() {
 			var p = parent.getElementsByTagName("p")[0];
 			p.innerHTML = "You attacked " + enemy.name + " for " + game.yourTempAttackPower + " damage. " + enemy.name + " retaliated for " + enemy.counterAttackPower + " damage.";
 		
-			// Update attack power stats, before yourTempAttackPower is incremented (would be too high if not)
-			var parent = document.getElementById("left-divide-section");
+			// Update you attack power stats, before yourTempAttackPower is incremented (would be too high if not)
+			// Do not do so for enemy; counter attack power never increases post enemy selection
+			var parent = document.getElementById("attack-power-you");
 			var p = parent.getElementsByTagName('p')[0];
 			p.innerHTML = "Your attack power: " + game.yourTempAttackPower;
 		}
