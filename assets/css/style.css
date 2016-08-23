@@ -70,14 +70,28 @@ div #display-characters {
 	margin-top: 7%;
 }
 
+div #display-enemies {
+	border-left: 1px solid #ccc;
+}
+
 /* Main enemy character display list for enemy selection */
 div #display-enemies h3 {
 	margin-top: 3px;
 }
 
+/* Attack section styling (attack button etc) */
+div #attack-section {
+	border-left: 1px solid #ccc;
+}
+
 /* Left side protogonish character display */
 div #display-protagonist h3 {
 	margin-top: 3px;
+}
+
+/* Battle area styling */
+div #battle-ground {
+	border-left: 1px solid #ccc;
 }
 
 /* Battle area display */

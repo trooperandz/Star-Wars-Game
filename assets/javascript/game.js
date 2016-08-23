@@ -277,6 +277,28 @@ var game = {
 		audio.play();
 	},
 
+	// Insert character attack power content on left side panel
+	insertAttackPowerDisplay(dataObj) {
+		var parent = document.getElementById(dataObj.id);
+		var p = document.createElement("p");
+		p.setAttribute("class", dataObj.style);
+		var text = document.createTextNode(dataObj.text);
+		parent.appendChild(p);
+		p.appendChild(text);
+	},
+
+	// Create the attack button section right above the battle area
+	createAttackSection(dataObj) {
+		var parent = document.getElementById(dataObj.id);
+		var button = document.createElement('button');
+		button.setAttribute("class", dataObj.classAttr);
+		button.setAttribute("type", dataObj.typeAttr);
+		button.setAttribute("id", dataObj.idAttr);
+		var text = document.createTextNode(dataObj.buttonText);
+		parent.appendChild(button);
+		button.appendChild(text);
+	},
+
 	// When attack initiates, create random clash noise from array of audio files
 	initializeAttackSound: function() {
 		// Pick a random index from the attackNoiseIdArray
@@ -332,10 +354,7 @@ $(document).ready(function() {
 	game.createAudioTags("misc-noises", game.miscSoundArray);
 	
 	// Create section heading for beginning gameplay
-	var dataObj = { 
-		parent_id: "display-characters", 
-		h3_text:   "Choose Your Character To Begin..." 
-	};
+	var dataObj = {  parent_id: "display-characters",  h3_text:   "Choose Your Character To Begin..." };
 	game.createSectionHeading(dataObj);
 
 	// Create select character list for beginning gameplay
@@ -354,7 +373,6 @@ $(document).ready(function() {
 
 	// When the user clicks a character, assign that character to them, and assign everyone else as enemies
 	$('div#display-characters li').on('click', function(event) {
-	//$(document.body).on('click', 'div#display-characters li', function(event) {
 		// Initialize character select sound
 		game.initializeMiscSound("character-select");
 
@@ -364,22 +382,18 @@ $(document).ready(function() {
 
 		// Assign your character to your array by accessing the index in the master array
 		// Note: this is an array, and not an object, so that it may also be put through the loop function, for DRY purposes
-		game.log('game.masterCharacterArray[index]: ' + game.masterCharacterArray[index]);
 		var pushObj = game.masterCharacterArray[index];
-		game.log('typeof pushObj: ' + typeof pushObj);
 
 		// Push the character chosen onto your character array, and onto the current battle array (will be object)
 		game.yourCharacterArray.push(pushObj);
-		game.log('yourCharacterArray : ' + game.yourCharacterArray);
 		game.currentBattleArray.push(pushObj);
 
 		// Set character initial temp attack power on first enemy selection. 
-		// Will increment inside of attack handler each time the attack button is clicked. Note: DO NOT increment attackPower
+		// Will increment inside of attack handler each time the attack button is clicked. Note: DO NOT increment original attackPower
 		game.yourTempAttackPower = game.yourCharacterArray[0].attackPower;
 
 		// Remove the character selected from the master array, so that only the enemies remain
 		game.masterCharacterArray.splice(index, 1);
-		game.log('masterCharacterArray after splice: ' + game.masterCharacterArray);
 
 		// Rename the resulting array to enemiesAvailableArray for visual purposes
 		// Note: this will not create a copy of the original array; it will point
@@ -391,10 +405,7 @@ $(document).ready(function() {
 		el.parentNode.removeChild(el);
 
 		// Create section heading for your character selection
-		var dataObj = { 
-			parent_id: "display-protagonist", 
-			h3_text:   "You Are Fighting As:" 
-		};
+		var dataObj = { parent_id: "display-protagonist",  h3_text:   "You Are Fighting As:" };
 		game.createSectionHeading(dataObj);
 	
 		// Create select character list for your character selection
@@ -412,10 +423,7 @@ $(document).ready(function() {
 		game.createCharacterList(dataObj);
 
 		// Create section heading for enemy display
-		var dataObj = { 
-			parent_id: "display-enemies", 
-			h3_text:   "Select An Opponent To Attack" 
-		};
+		var dataObj = {  parent_id: "display-enemies",  h3_text:   "Select An Opponent To Attack" };
 		game.createSectionHeading(dataObj);
 	
 		// Create select character list from enemies
@@ -436,7 +444,6 @@ $(document).ready(function() {
 	// When the user chooses an enemy, assign it to the defender array
 	//$('div#display-enemies li').on('click', function(event) {
 	$(document.body).on('click', 'div#display-enemies li', function(event) {
-		game.log('enemy was just selected!');
 
 		// Set the character number based on the <li> id. Will always match position, as html is created dynamically from the array itself.
 		// Use slice to remove the words before the index number, for later use of index position
@@ -461,46 +468,27 @@ $(document).ready(function() {
 			game.currentBattleArray.push(pushObj);
 			
 			// Remove the character selected from the enemies available list
-			// Note: there will always only be one of these
+			// Note: there will always only be one of these ul's, using index 0
 			var ul = document.getElementsByClassName("enemy-character")[0];
 			var li = document.getElementById("enemy" + index);
 			ul.removeChild(li);
-	
-			// Insert attack power display content into the side area. Need to put inside of function
-			// First create your character stats
-			var parent = document.getElementById("attack-power-you");
-			var p = document.createElement('p');
-			p.setAttribute("class", "text-yellow");
-			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
-			parent.appendChild(p);
-			//p.appendChild(text);
-			p.innerHTML = "Your attack power: " + game.yourTempAttackPower;
 
+			// Insert attack power display content for both characters into the side area.
+			// First create your character stats
+			var dataObj = { id: "attack-power-you", style: "text-yellow", text: "Your attack power: " + game.yourTempAttackPower };
+			game.insertAttackPowerDisplay(dataObj);
+	
 			// Now create enemy character stats
-			var parent = document.getElementById("attack-power-enemy");
-			var p = document.createElement('p');
-			p.setAttribute("class", "text-yellow");
-			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
-			parent.appendChild(p);
-			//p.appendChild(text);
-			p.innerHTML = "Counter attack power: " + game.yourEnemyArray[0].counterAttackPower;
-	
+			var dataObj = { id: "attack-power-enemy", style: "text-yellow", text: "Counter attack power: " + game.yourEnemyArray[0].counterAttackPower };
+			game.insertAttackPowerDisplay(dataObj);
+
 			// Insert content into the attack section (button etc)
-			var parent = document.getElementById("attack-section");
-			var button = document.createElement('button');
-			button.setAttribute("class", "btn btn-warning");
-			button.setAttribute("type", "button");
-			button.setAttribute("id", "attack-button");
-			var text = document.createTextNode("Attack Now!");
-			parent.appendChild(button);
-			button.appendChild(text);
-	
+			var dataObj = { id: "attack-section", classAttr: "btn btn-warning", typeAttr: "button", idAttr: "attack-button", buttonText: "Attack Now!" };
+			game.createAttackSection(dataObj);
+
 			// Now display the defender under your character display, on left of screen in the #display-defender <aside>
 			// Create section heading for enemy display
-			var dataObj = { 
-				parent_id: "display-defender", 
-				h3_text:   "Your Opponent Is:" 
-			};
+			var dataObj = {  parent_id: "display-defender",  h3_text:   "Your Opponent Is:" };
 			game.createSectionHeading(dataObj);
 		
 			// Create enemy display list from enemies
@@ -518,10 +506,7 @@ $(document).ready(function() {
 			game.createCharacterList(dataObj);
 	
 			// Create section heading for battleground display
-			var dataObj = { 
-				parent_id: "battle-ground", 
-				h3_text:   "Battleground" 
-			};
+			var dataObj = {  parent_id: "battle-ground",  h3_text:   "Battleground"  };
 			game.createSectionHeading(dataObj);
 		
 			// Create character display list for battleground
@@ -580,10 +565,7 @@ $(document).ready(function() {
 				parent.innerHTML = "";
 
 				// Now update the battle ground to "Last Battle!"
-				var dataObj = { 
-					parent_id: "battle-ground", 
-					h3_text:   "Last Battle!" 
-				};
+				var dataObj = {  parent_id: "battle-ground",  h3_text:   "Last Battle!" };
 				game.createSectionHeading(dataObj);
 			
 				// Now create character display list for battleground area
@@ -610,10 +592,7 @@ $(document).ready(function() {
 				parent.innerHTML = "";
 	
 				// Now update left enemy area display with new content
-				var dataObj = { 
-					parent_id: "display-defender", 
-					h3_text:   "Your Opponent Is:" 
-				};
+				var dataObj = {  parent_id: "display-defender",  h3_text:   "Your Opponent Is:" };
 				game.createSectionHeading(dataObj);
 			
 				// Create enemy display list from enemy array
@@ -673,7 +652,6 @@ $(document).ready(function() {
 	});
 
 	$('div#attack-section').on('click', 'button#attack-button', function(event) {
-		game.log("Attack button was clicked!");
 
 		// If enemy was just defeated, and a new enemy has not yet been selected, do not allow attack button to do anything
 		if(game.defeatActiveMode) {
@@ -697,7 +675,6 @@ $(document).ready(function() {
 			var parent = document.getElementById("battle-feedback");
 			var p = document.createElement("p");
 			p.setAttribute("class", "text-green");
-			//p.setAttribute("id", "your-attack-power");
 			parent.appendChild(p);
 			p.innerHTML = "You attacked " + enemy.name + " for " + game.yourTempAttackPower + " damage. " + enemy.name + " retaliated for " + enemy.counterAttackPower + " damage.";
 		} else {
@@ -713,9 +690,6 @@ $(document).ready(function() {
 			p.innerHTML = "Your attack power: " + game.yourTempAttackPower;
 		}
 
-		game.log("Your intial health before attack: " + your.healthPoints);
-		game.log("Your enemy's health before attack: " + enemy.healthPoints);
-
 		// Now reduce your health by your enemy's counter attack power
 		your.healthPoints -= enemy.counterAttackPower;
 		game.log("Your health was reduced by " + enemy.counterAttackPower + " points. \n Your health after attack: " + your.healthPoints);
@@ -729,11 +703,11 @@ $(document).ready(function() {
 		game.log("Your temp attack power after attack: " + game.yourTempAttackPower);
 
 		// Now update your health inside of the left character display area
-		var dataObj = { parentId: "display-protagonist", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
+		var dataObj = { parentId: "display-protagonist", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints };
 		game.updateHealthPoints(dataObj);
 
 		// Now update your health inside of the battle area
-		var dataObj = { parentId: "battle-ground", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints }
+		var dataObj = { parentId: "battle-ground", updateElement: "p", elementIndex: 1, healthPoints: your.healthPoints };
 		game.updateHealthPoints(dataObj);
 
 		// Now update enemy's health inside of the left character display area, only if it is not the last battle (div disappears at that point)
@@ -764,9 +738,10 @@ $(document).ready(function() {
 			var ul = document.getElementById("battle-character");
 			var li = ul.getElementsByTagName('li')[1]; // Enemy will always be 2nd
 			ul.removeChild(li);
+
 			// Alse remove enemy img and enemy label from left side area and replace with <p class="side-defeat-label"> DEFEATED! </p>
 			// Note: ONLY do this if it is not the last battle (otherwise, content does not exist and an error will trigger), preventing game win
-			if(game.enemiesDefeatedCount < (game.enemiesAvailableArray - 1)) {
+			if(game.enemiesDefeatedCount < (game.enemiesAvailableArray.length - 1)) {
 				var li = document.getElementsByClassName("li-defender-character")[0]; // Will always be 1st, as is the only item in container
 				var p1 = li.getElementsByTagName('p')[0];
 				var text = document.createTextNode("DEFEATED!");
@@ -778,12 +753,12 @@ $(document).ready(function() {
 				li.removeChild(img);
 				li.removeChild(p2);
 			}
+
 			// Continue fighting by selecting another enemy (only if there are enemies left in the enemiesAvailableArray)
 			if(game.enemiesDefeatedCount == game.enemiesAvailableArray.length) {
 				// No more enemies left, so you won the game! Congrats!
 
-				// First, remove page content and 
-				game.log("Game is over!");
+				// First, remove page content and
 				game.initializeBgMusic("win-theme");
 				alert("Congratulations, you won the game! You are Jedi Master!");
 				return false;
