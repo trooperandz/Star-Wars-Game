@@ -22,7 +22,7 @@ var game = {
 			name: "Yoda",
 			visual: "assets/images/characters/yoda.jpg",
 			healthPoints: 235,
-			attackPower: 8,
+			attackPower: 13,
 			counterAttackPower: 26
 		},
 
@@ -466,11 +466,11 @@ $(document).ready(function() {
 			var li = document.getElementById("enemy" + index);
 			ul.removeChild(li);
 	
-			// Insert content into the left-divide-section. Need to put inside of function
-			// First start with your character stats
+			// Insert attack power display content into the side area. Need to put inside of function
+			// First create your character stats
 			var parent = document.getElementById("attack-power-you");
 			var p = document.createElement('p');
-			p.setAttribute("class", "text-green");
+			p.setAttribute("class", "text-yellow");
 			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
 			parent.appendChild(p);
 			//p.appendChild(text);
@@ -479,7 +479,7 @@ $(document).ready(function() {
 			// Now create enemy character stats
 			var parent = document.getElementById("attack-power-enemy");
 			var p = document.createElement('p');
-			p.setAttribute("class", "text-green");
+			p.setAttribute("class", "text-yellow");
 			//var text = document.createTextNode("Your attack power: " + game.yourTempAttackPower);
 			parent.appendChild(p);
 			//p.appendChild(text);

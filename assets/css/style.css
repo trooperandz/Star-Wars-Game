@@ -30,6 +30,12 @@ body {
 	font-weight: bold;
 }
 
+/* Yellow text for character attack power side display */
+.text-yellow {
+	color: #e5c100;
+	font-weight: bold;
+}
+
 /* Image background color class */
 .bg-blue {
 	background-color: #008cba;
@@ -64,12 +70,19 @@ div #display-characters {
 	margin-top: 7%;
 }
 
+/* Main enemy character display list for enemy selection */
 div #display-enemies h3 {
 	margin-top: 3px;
 }
 
+/* Left side protogonish character display */
 div #display-protagonist h3 {
 	margin-top: 3px;
+}
+
+/* Battle area display */
+div #battle-feedback {
+	font-size: 17px;
 }
 
 /* Main battle and attack section headings */
